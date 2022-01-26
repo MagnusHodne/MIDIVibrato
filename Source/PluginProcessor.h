@@ -35,5 +35,11 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+
+    float midiRmsLevel;
+    int inputControllerNum = 1; //The CC number to use as input
+    int amplitudeCC = 21;
+    int rateCC = 19;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
