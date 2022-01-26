@@ -1,12 +1,13 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "VibratoDetector.h"
 
-class AudioPluginAudioProcessor : public juce::AudioProcessor
+class MidiPluginProcessor : public juce::AudioProcessor
 {
 public:
-    AudioPluginAudioProcessor();
-    ~AudioPluginAudioProcessor() override;
+    MidiPluginProcessor();
+    ~MidiPluginProcessor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -34,12 +35,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    int getRmsValue(const int controllerNumber) const;
 private:
 
+    VibratoDetector detector;
     float midiRmsLevel;
     int inputControllerNum = 1; //The CC number to use as input
     int amplitudeCC = 21;
     int rateCC = 19;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)
 };

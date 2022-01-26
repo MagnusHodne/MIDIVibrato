@@ -2,10 +2,12 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
+AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (MidiPluginProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
 {
     juce::ignoreUnused (processorRef);
+    addAndMakeVisible(amplitudeMeter);
+    addAndMakeVisible(rateMeter);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
@@ -20,14 +22,17 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Feed me signal, and I will figure out vibrato for you!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    amplitudeMeter.setBounds(100, 100, 200, 15);
+    rateMeter.setBounds(100, 120, 200, 15);
+
+}
+
+void AudioPluginAudioProcessorEditor::timerCallback()
+{
+    amplitudeMeter.repaint();
+    rateMeter.repaint();
 }

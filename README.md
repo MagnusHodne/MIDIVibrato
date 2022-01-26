@@ -38,7 +38,7 @@ After you've created a new repo:
 
 5. Set the correct flags for your plugin under `juce_add_plugin`. Check out the API https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md and be sure to change things like `PLUGIN_CODE` and `PLUGIN_MANUFACTURER_CODE`
 
-6. Rename `AudioPluginAudioProcessor` to your plugin name in the code.
+6. Rename `MidiPluginProcessor` to your plugin name in the code.
 
 7. Set `PROJECT_NAME` on line 6 of the github action to your project name.
 
