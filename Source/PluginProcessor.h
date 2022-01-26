@@ -35,14 +35,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    int getRmsValue(const int controllerNumber) const;
-private:
+    const VibratoDetector& getDetector() {
+        return detector;
+    }
 
+private:
     VibratoDetector detector;
-    float midiRmsLevel;
-    int inputControllerNum = 1; //The CC number to use as input
-    int amplitudeCC = 21;
-    int rateCC = 19;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)
 };

@@ -44,7 +44,7 @@ target_compile_features("${TARGET_NAME}" PRIVATE cxx_std_20)
 
 # Manually list all .h and .cpp files for the plugin, don't use globs:
 set(SourceFiles
-    Source/HorizontalMeter.h
+        Source/MidiMeter.h
     Source/VibratoDetector.h
     Source/PluginEditor.h
     Source/PluginProcessor.h

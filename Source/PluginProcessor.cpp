@@ -124,7 +124,7 @@ void MidiPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                         juce::MidiBuffer& midiMessages)
 {
     buffer.clear(); //Clearing the audio...
-    detector.processMidi(midiMessages, inputControllerNum, amplitudeCC, rateCC);
+    detector.processMidi(midiMessages, buffer.getNumSamples());
 }
 
 //==============================================================================
@@ -152,10 +152,6 @@ void MidiPluginProcessor::setStateInformation (const void* data, int sizeInBytes
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
-}
-
-int MidiPluginProcessor::getRmsValue(const int controllerNumber) const {
-    return 0;
 }
 
 //==============================================================================

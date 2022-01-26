@@ -1,6 +1,7 @@
 #pragma once
 
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_core/juce_core.h"
 
 class VibratoDetector
 {
@@ -12,23 +13,26 @@ public:
     /// \param ampController The controller that will be used to send out amplitude information
     /// \param rateController The controller that will be used to send out rate information
     /// \return
-    void processMidi(juce::MidiBuffer& midiMessages, int inputController, int ampController, int rateController) {
+    void processMidi(juce::MidiBuffer& midiMessages, int numSamples) {
 
-        juce::MidiBuffer processedMidi;
+        juce::MidiBuffer passthrough;
+
+        int sum = 0;
 
         for (const auto metadata : midiMessages)
         {
             auto message = metadata.getMessage();
             const auto time = metadata.samplePosition;
 
-            if (message.isControllerOfType(inputController)){
-                //Interpret the message here
+            if(message.isControllerOfType(inputController)){
+                sum += message.getControllerValue();
             } else {
-                processedMidi.addEvent (message, time); //Pass through rest
+                passthrough.addEvent(message, time);
             }
         }
 
-        midiMessages.swapWith (processedMidi);
+        amplitude = sum/numSamples;
+        midiMessages.swapWith (passthrough);
     }
 
     int getAmplitude() const {
@@ -37,8 +41,25 @@ public:
     int getRate() const {
         return rate;
     }
+
+    void setInputController(int newCC){
+        inputController = clampCCs(newCC);
+    }
+    void setAmpController(int newCC){
+        ampController = clampCCs(newCC);
+    }
+    void setRateController(int newCC){
+        rateController = clampCCs(newCC);
+    }
+
+    int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
+
 private:
+
+    int inputController = 1;
+    int ampController = 21;
+    int rateController = 19;
+
     int amplitude = 0;
     int rate = 0;
-
 };
