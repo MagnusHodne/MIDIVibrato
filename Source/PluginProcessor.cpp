@@ -89,7 +89,8 @@ void MidiPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    juce::ignoreUnused (samplesPerBlock);
+    detector.resetValues(sampleRate);
 }
 
 void MidiPluginProcessor::releaseResources()
@@ -123,8 +124,8 @@ bool MidiPluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 void MidiPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                         juce::MidiBuffer& midiMessages)
 {
-    buffer.clear(); //Clearing the audio...
     detector.processMidi(midiMessages, buffer.getNumSamples());
+    buffer.clear(); //Clearing the audio buffer...
 }
 
 //==============================================================================
@@ -135,7 +136,7 @@ bool MidiPluginProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MidiPluginProcessor::createEditor()
 {
-    return new AudioPluginAudioProcessorEditor (*this);
+    return new MidiPluginEditor (*this);
 }
 
 //==============================================================================

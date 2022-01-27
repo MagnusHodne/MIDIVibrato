@@ -6,18 +6,10 @@
 class VibratoDetector
 {
 public:
-    /// Splits out an incoming MIDI CC message, and splits it out into separate rate/amplitude components.
-    /// All processing is done in this class
-    /// \param midiMessages The incoming MidiBuffer
-    /// \param inputController The controller that is used for interpreting vibrato
-    /// \param ampController The controller that will be used to send out amplitude information
-    /// \param rateController The controller that will be used to send out rate information
-    /// \return
     void processMidi(juce::MidiBuffer& midiMessages, int numSamples) {
-
         juce::MidiBuffer passthrough;
-
-        int sum = 0;
+        juce::MidiBuffer vibratoData;
+        double sum = 0.0;
 
         for (const auto metadata : midiMessages)
         {
@@ -25,21 +17,28 @@ public:
             const auto time = metadata.samplePosition;
 
             if(message.isControllerOfType(inputController)){
-                sum += message.getControllerValue();
+                vibratoData.addEvent(message, time);
             } else {
                 passthrough.addEvent(message, time);
             }
         }
 
-        amplitude = sum/numSamples;
+        if(!vibratoData.isEmpty()){
+            auto numEvents = vibratoData.getNumEvents();
+            for(const auto metadata : vibratoData){
+                auto message = metadata.getMessage();
+                sum += message.getControllerValue() * message.getControllerValue();
+            }
+            amplitude = static_cast<int>(std::sqrt(sum/numEvents));
+        }
         midiMessages.swapWith (passthrough);
     }
 
     int getAmplitude() const {
-        return amplitude;
+        return std::clamp(amplitude, 0, 127);
     }
     int getRate() const {
-        return rate;
+        return std::clamp(rate, 0, 127);
     }
 
     void setInputController(int newCC){
@@ -54,11 +53,18 @@ public:
 
     int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
+    void resetValues(double sampleRate) {
+        //amplitude.reset(sampleRate, rampLengthInSeconds);
+        //amplitude.setCurrentAndTargetValue(0.f);
+    }
+
 private:
 
     int inputController = 1;
     int ampController = 21;
     int rateController = 19;
+
+    double rampLengthInSeconds = 0.001f;
 
     int amplitude = 0;
     int rate = 0;

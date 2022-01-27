@@ -35,8 +35,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    const VibratoDetector& getDetector() {
-        return detector;
+    int getAmplitude() const {
+        return detector.getAmplitude();
+    }
+
+    int getRate() const {
+        return detector.getRate();
     }
 
 private:

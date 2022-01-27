@@ -6,23 +6,28 @@ using namespace juce;
 
 namespace Gui
 {
-class MidiMeter : public juce::Component
+class MidiMeter : public juce::Component, juce::Timer
     {
     public:
+        explicit MidiMeter(std::function<int()>&& valueFunction) : valueSupplier(std::move(valueFunction)){
+            startTimerHz(60);
+        }
         void paint(Graphics& g ) override
         {
+            const auto level = valueSupplier();
             auto bounds = getLocalBounds().toFloat();
             g.setColour(Colours::white.withBrightness(0.4f));
             g.fillRoundedRectangle(bounds, 5.f);
 
             g.setColour(Colours::white);
-            const auto scaledX = jmap(amplitude, 0, 127, 0, getWidth());
+            const auto scaledX = jmap(level, 0, 127, 0, getWidth());
             g.fillRoundedRectangle(bounds.removeFromLeft(static_cast<float>(scaledX)), 5.f);
         }
-        void setValue(const int value) { amplitude = value; }
+        void timerCallback() override {
+            repaint();
+        }
     private:
-        int amplitude = 0; //Should go 0-127
-        int rate = 0;
+        std::function<int()> valueSupplier; //Method that gets us our value to display
     };
 
 }
