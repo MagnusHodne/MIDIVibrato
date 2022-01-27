@@ -4,9 +4,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 Include(FetchContent)
 
 FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v3.0.0-preview3
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.0.0-preview3
 )
 
 FetchContent_MakeAvailable(Catch2)
@@ -15,37 +15,38 @@ set_target_properties(Catch2 PROPERTIES FOLDER Catch2)
 set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
-    PluginBasics.cpp)
+        FifoTest.cpp
+        PluginBasics.cpp)
 
 # A list of all the files that we need for our unit tests. Unless you write tests for every single class
 # used in the application, it is probably better to just include the files we actually need
 set(TestedFiles
-    ../Source/PluginEditor.cpp
-    ../Source/PluginEditor.h
-    ../Source/PluginProcessor.h
-    ../Source/PluginProcessor.cpp)
+        ../Source/PluginEditor.cpp
+        ../Source/PluginEditor.h
+        ../Source/PluginProcessor.h
+        ../Source/PluginProcessor.cpp)
 
 juce_add_console_app(MyPluginTests
-    PRODUCT_NAME "MyPlugin Unit Tests")
+        PRODUCT_NAME "MyPlugin Unit Tests")
 
 target_compile_features(MyPluginTests PRIVATE cxx_std_20)
 
-target_sources(MyPluginTests 
-    PRIVATE 
-        ${UnitTests} 
+target_sources(MyPluginTests
+        PRIVATE
+        ${UnitTests}
         # ${SourceFiles} # Switching to this instead of TestedFiles will include all but Main.cpp
         ${TestedFiles})
 
 target_compile_definitions(MyPluginTests
-    PRIVATE
+        PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0)
 
 target_link_libraries(MyPluginTests
-    PRIVATE
+        PRIVATE
         ${JUCE_DEPENDENCIES}
         Catch2::Catch2WithMain
-    PUBLIC
+        PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
 

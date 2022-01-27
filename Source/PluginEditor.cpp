@@ -2,12 +2,11 @@
 #include "PluginEditor.h"
 
 MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
-: AudioProcessorEditor(&p),
-  processorRef(p),
-  amplitudeMeter([&](){ return processorRef.getAmplitude(); }),
-  rateMeter([&](){ return processorRef.getRate(); })
-{
-    juce::ignoreUnused (processorRef);
+        : AudioProcessorEditor(&p),
+          processorRef(p),
+          amplitudeMeter([&]() { return processorRef.getAmplitude(); }),
+          rateMeter([&]() { return processorRef.getRate(); }) {
+    juce::ignoreUnused(processorRef);
     addAndMakeVisible(amplitudeMeter);
     addAndMakeVisible(rateMeter);
 
@@ -24,11 +23,11 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize(400, 300);
 }
 
 void MidiPluginEditor::paint(juce::Graphics &g) {
-    g.fillAll (Colours::darkgrey);
+    g.fillAll(Colours::darkgrey);
 }
 
 void MidiPluginEditor::resized() {

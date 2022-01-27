@@ -4,23 +4,22 @@
 #include "Component/MidiMeter.h"
 
 //==============================================================================
-class MidiPluginEditor  : public juce::AudioProcessorEditor
-{
+class MidiPluginEditor : public juce::AudioProcessorEditor {
 public:
-    explicit MidiPluginEditor (MidiPluginProcessor& p);
+    explicit MidiPluginEditor(MidiPluginProcessor &p);
 
 
     ~MidiPluginEditor() override = default;
 
     //==============================================================================
-    void paint (juce::Graphics& g) override;
+    void paint(juce::Graphics &g) override;
 
     void resized() override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    MidiPluginProcessor& processorRef;
+    MidiPluginProcessor &processorRef;
 
     Gui::MidiMeter amplitudeMeter, rateMeter;
     juce::Slider inputCCSlider, ampCCSlider, rateCCSlider;

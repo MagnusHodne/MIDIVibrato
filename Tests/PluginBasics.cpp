@@ -3,7 +3,7 @@
 
 TEST_CASE("one is equal to one", "[dummy]")
 {
-	REQUIRE(1 == 1);
+    REQUIRE(1 == 1);
 }
 
 // https://github.com/McMartin/FRUT/issues/490#issuecomment-663544272
