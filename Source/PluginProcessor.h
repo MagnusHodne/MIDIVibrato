@@ -64,10 +64,10 @@ public:
     }
 
 private:
-    VibratoDetector detector;
-    juce::AudioProcessorValueTreeState parameters;
-
     int numBuffers = 5;
+    VibratoDetector detector;
+
+    juce::AudioProcessorValueTreeState parameters;
     float multiplier = 2.f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)

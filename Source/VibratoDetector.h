@@ -6,6 +6,10 @@
 
 class VibratoDetector {
 public:
+    explicit VibratoDetector(int initialBufferSize)
+    : ringBuffer(initialBufferSize){
+
+    }
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
         amplitude.skip(numSamples);
         juce::MidiBuffer passthrough;

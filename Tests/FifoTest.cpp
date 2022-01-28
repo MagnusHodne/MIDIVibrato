@@ -3,8 +3,7 @@
 
 TEST_CASE("TestRMS", "[dummy]")
 {
-    Utility::MidiRingBuffer ringBuffer;
-    ringBuffer.reset(2);
+    Utility::MidiRingBuffer ringBuffer(2);
     juce::MidiBuffer midiBuffer;
 
     REQUIRE(ringBuffer.getRms() == 0);

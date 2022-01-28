@@ -9,13 +9,13 @@ namespace Utility {
     class MidiRingBuffer {
     public:
 
-        MidiRingBuffer(){
-            ringBuffer = std::vector<int>(size, 0);
+        explicit MidiRingBuffer(int initialBufferSize){
+            initialBufferSize = std::clamp(initialBufferSize, 1, 128);
+            ringBuffer = std::vector<int>(initialBufferSize, 0);
         }
 
         void reset(int numBuffersToHold) {
-            size = numBuffersToHold;
-            ringBuffer = std::vector<int>(size, 0);
+            ringBuffer = std::vector<int>(numBuffersToHold, 0);
         }
 
         /// You should call this method on each processBlock, passing in a buffer containing
@@ -23,7 +23,7 @@ namespace Utility {
         /// \param buffer a MidiBuffer containing only the CC values you wish to analyze
         void push(const MidiBuffer &buffer) {
             ringBuffer[writeHead] = calculateRmsOfSingleBuffer(buffer);
-            writeHead = writeHead == size-1 ? 0 : writeHead + 1;
+            writeHead = writeHead == ringBuffer.size()-1 ? 0 : writeHead + 1;
         }
 
         int getRms() {
@@ -31,11 +31,11 @@ namespace Utility {
             for(auto rms : ringBuffer){
                 sum += rms;
             }
-            return sum/size;
+            return sum/static_cast<int>(ringBuffer.size());
         }
 
     private:
-        int calculateRmsOfSingleBuffer(const MidiBuffer &buffer) {
+        static int calculateRmsOfSingleBuffer(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
             float sum = 0.f;
@@ -44,13 +44,13 @@ namespace Utility {
                 const auto value = metadata.getMessage().getControllerValue();
                 sum += std::powf(static_cast<float>(value - halfMidi), 2.0);
             }
-            return std::sqrt(sum/static_cast<float>(buffer.getNumEvents()));
+            return static_cast<int>(std::sqrt(sum/static_cast<float>(buffer.getNumEvents())));
         }
 
         std::vector<int> ringBuffer;
 
         int writeHead = 0;
-        int size = 5;
+        //int size;
 
         //Since we are calculating amplitude from "center", we have to define that as our
         //baseline value

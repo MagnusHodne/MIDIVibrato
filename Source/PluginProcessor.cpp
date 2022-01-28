@@ -8,7 +8,7 @@ MidiPluginProcessor::MidiPluginProcessor()
         : AudioProcessor(BusesProperties()
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
+), detector(numBuffers), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
         std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 128, 5),
         std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 1.f, 10.f, 2.f)
 }) {
