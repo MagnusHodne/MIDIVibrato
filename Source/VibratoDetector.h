@@ -2,13 +2,14 @@
 
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/juce_core.h"
+#include "Utility/Fifo.h"
 
 class VibratoDetector {
 public:
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
+        amplitude.skip(numSamples);
         juce::MidiBuffer passthrough;
         juce::MidiBuffer vibratoData;
-        double sum = 0.0;
 
         for (const auto metadata: midiMessages) {
             auto message = metadata.getMessage();
@@ -21,23 +22,18 @@ public:
             }
         }
 
-        if (!vibratoData.isEmpty()) {
-            auto numEvents = vibratoData.getNumEvents();
-            for (const auto metadata: vibratoData) {
-                auto message = metadata.getMessage();
-                sum += message.getControllerValue() * message.getControllerValue();
-            }
-            amplitude = static_cast<int>(std::sqrt(sum / numEvents));
-        }
+        ringBuffer.push(vibratoData);
+
+        amplitude.setTargetValue(static_cast<float>(ringBuffer.getRms()*3));
         midiMessages.swapWith(passthrough);
     }
 
     int getAmplitude() const {
-        return std::clamp(amplitude, 0, 127);
+        return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
     }
 
     int getRate() const {
-        return std::clamp(rate, 0, 127);
+        return std::clamp(static_cast<int>(rate.getCurrentValue()), 0, 127);
     }
 
     void setInputController(int newCC) {
@@ -55,8 +51,10 @@ public:
     int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
     void resetValues(double sampleRate) {
-        //amplitude.reset(sampleRate, rampLengthInSeconds);
-        //amplitude.setCurrentAndTargetValue(0.f);
+        amplitude.reset(sampleRate, rampLengthInSeconds);
+        amplitude.setCurrentAndTargetValue(0.f);
+
+        ringBuffer.reset(512);
     }
 
 private:
@@ -65,8 +63,10 @@ private:
     int ampController = 21;
     int rateController = 19;
 
-    double rampLengthInSeconds = 0.001f;
+    Utility::MidiRingBuffer ringBuffer;
 
-    int amplitude = 0;
-    int rate = 0;
+    double rampLengthInSeconds = 0.1;
+
+    juce::LinearSmoothedValue<float> amplitude;
+    juce::LinearSmoothedValue<float> rate;
 };

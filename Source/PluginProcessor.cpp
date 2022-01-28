@@ -2,14 +2,12 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+
+//Even though we aren't using
 MidiPluginProcessor::MidiPluginProcessor()
         : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
-#endif
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
 ) {
 }
 
@@ -25,6 +23,7 @@ const juce::String MidiPluginProcessor::getName() const {
 bool MidiPluginProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
     return true;
+
 #else
     return false;
 #endif
