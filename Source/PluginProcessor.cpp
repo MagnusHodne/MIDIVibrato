@@ -52,8 +52,7 @@ void MidiPluginProcessor::releaseResources() {
 
 //==============================================================================
 const juce::String MidiPluginProcessor::getName() const {
-    //return JucePlugin_Name; //TODO - Fix later...
-    return "Midi Quantizer";
+    return JucePlugin_Name;
 }
 
 bool MidiPluginProcessor::acceptsMidi() const {
