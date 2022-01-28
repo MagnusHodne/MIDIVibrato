@@ -3,8 +3,6 @@
 #include "juce_core/juce_core.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 
-
-//Code from https://github.com/Thrifleganger/level-meter-demo/blob/master/Source/Utility/Fifo.h
 namespace Utility {
     using namespace juce;
 
@@ -30,8 +28,8 @@ namespace Utility {
 
         int getRms() {
             int sum = 0;
-            for(int i = 0; i < size; i++){
-                sum += ringBuffer[i];
+            for(auto rms : ringBuffer){
+                sum += rms;
             }
             return sum/size;
         }
@@ -40,18 +38,22 @@ namespace Utility {
         int calculateRmsOfSingleBuffer(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
-            int sum = 0;
+            float sum = 0.f;
 
             for (auto metadata: buffer) {
-                const auto message = metadata.getMessage();
-                sum += message.getControllerValue();
+                const auto value = metadata.getMessage().getControllerValue();
+                sum += std::powf(static_cast<float>(value - halfMidi), 2.0);
             }
-            return sum / buffer.getNumEvents();
+            return std::sqrt(sum/static_cast<float>(buffer.getNumEvents()));
         }
 
         std::vector<int> ringBuffer;
 
         int writeHead = 0;
         int size = 5;
+
+        //Since we are calculating amplitude from "center", we have to define that as our
+        //baseline value
+        static constexpr int halfMidi = 128/2-1;
     };
 }

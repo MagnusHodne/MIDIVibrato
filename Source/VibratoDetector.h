@@ -71,7 +71,7 @@ private:
 
     Utility::MidiRingBuffer ringBuffer;
 
-    double rampLengthInSeconds = 0.1;
+    double rampLengthInSeconds = 0.5;
     float scaling = 1.f;
 
     juce::LinearSmoothedValue<float> amplitude;
