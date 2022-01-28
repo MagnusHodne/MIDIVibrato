@@ -32,7 +32,7 @@ public:
 
         if (true) {
             passthrough.addEvent(
-                    juce::MidiMessage::controllerEvent(1, 21, static_cast<int>(amplitude.getCurrentValue())),
+                    juce::MidiMessage::controllerEvent(1, ampController, static_cast<int>(amplitude.getCurrentValue())),
                     1);
         }
 
@@ -76,7 +76,7 @@ public:
 
 private:
 
-    int inputController = 1;
+    int inputController = 2;
     int ampController = 21;
     int rateController = 19;
 
