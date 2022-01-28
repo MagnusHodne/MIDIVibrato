@@ -3,19 +3,23 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "VibratoDetector.h"
 
-class MidiPluginProcessor : public juce::AudioProcessor {
+class MidiPluginProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener {
 public:
     MidiPluginProcessor();
 
     ~MidiPluginProcessor() override;
 
+    //================Stuff you care about============================
+
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+
+    void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
     void releaseResources() override;
 
-    bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
+    //===================Boilerplate==================================
 
-    void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
+    bool isBusesLayoutSupported(const BusesLayout &layouts) const override;
 
     juce::AudioProcessorEditor *createEditor() override;
 
@@ -45,6 +49,12 @@ public:
 
     void setStateInformation(const void *data, int sizeInBytes) override;
 
+    //========================Custom functions============================
+
+    void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+    juce::AudioProcessorValueTreeState &getApvts() { return parameters; }
+
     int getAmplitude() const {
         return detector.getAmplitude();
     }
@@ -55,6 +65,10 @@ public:
 
 private:
     VibratoDetector detector;
+    juce::AudioProcessorValueTreeState parameters;
+
+    int numBuffers = 5;
+    float multiplier = 2.f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)
 };

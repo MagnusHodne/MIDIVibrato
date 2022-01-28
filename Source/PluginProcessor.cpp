@@ -8,10 +8,45 @@ MidiPluginProcessor::MidiPluginProcessor()
         : AudioProcessor(BusesProperties()
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-) {
+), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
+        std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 128, 5),
+        std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 0.f, 2.f, 10.f)
+}) {
+    parameters.addParameterListener("numBuf", this);
+    parameters.addParameterListener("scaling", this);
 }
 
 MidiPluginProcessor::~MidiPluginProcessor() {
+    parameters.removeParameterListener("numBuf", this);
+    parameters.removeParameterListener("scaling", this);
+}
+
+void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
+    if (parameterID.equalsIgnoreCase("scaling")) {
+        multiplier = newValue;
+    }
+    if (parameterID.equalsIgnoreCase("numBuf")) {
+        numBuffers = static_cast<int>(newValue);
+    }
+}
+
+//==============================================================================
+void MidiPluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
+    // Use this method as the place to do any pre-playback
+    // initialisation that you need..
+    juce::ignoreUnused(samplesPerBlock);
+    detector.resetValues(sampleRate, numBuffers, multiplier);
+}
+
+void MidiPluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
+                                       juce::MidiBuffer &midiMessages) {
+    detector.processMidi(midiMessages, buffer.getNumSamples());
+    buffer.clear(); //Clearing the audio buffer...
+}
+
+void MidiPluginProcessor::releaseResources() {
+    // When playback stops, you can use this as an opportunity to free up any
+    // spare memory, etc.
 }
 
 //==============================================================================
@@ -71,22 +106,9 @@ void MidiPluginProcessor::changeProgramName(int index, const juce::String &newNa
     juce::ignoreUnused(index, newName);
 }
 
-//==============================================================================
-void MidiPluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused(samplesPerBlock);
-    detector.resetValues(sampleRate);
-}
-
-void MidiPluginProcessor::releaseResources() {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
-}
-
 bool MidiPluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+    juce::ignoreUnused(layouts);
     return true;
 #else
     // This is the place where you check if the layout is supported.
@@ -103,12 +125,6 @@ bool MidiPluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) con
 
     return true;
 #endif
-}
-
-void MidiPluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
-                                       juce::MidiBuffer &midiMessages) {
-    detector.processMidi(midiMessages, buffer.getNumSamples());
-    buffer.clear(); //Clearing the audio buffer...
 }
 
 //==============================================================================

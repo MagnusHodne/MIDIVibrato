@@ -24,7 +24,7 @@ public:
 
         ringBuffer.push(vibratoData);
 
-        amplitude.setTargetValue(static_cast<float>(ringBuffer.getRms()*3));
+        amplitude.setTargetValue(static_cast<float>(ringBuffer.getRms()) * scaling);
         midiMessages.swapWith(passthrough);
     }
 
@@ -50,11 +50,13 @@ public:
 
     int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
-    void resetValues(double sampleRate) {
+    void resetValues(double sampleRate, int numBuffers, float newScaling) {
         amplitude.reset(sampleRate, rampLengthInSeconds);
         amplitude.setCurrentAndTargetValue(0.f);
 
-        ringBuffer.reset(512);
+        scaling = newScaling;
+
+        ringBuffer.reset(numBuffers);
     }
 
 private:
@@ -66,6 +68,7 @@ private:
     Utility::MidiRingBuffer ringBuffer;
 
     double rampLengthInSeconds = 0.1;
+    float scaling = 1.f;
 
     juce::LinearSmoothedValue<float> amplitude;
     juce::LinearSmoothedValue<float> rate;
