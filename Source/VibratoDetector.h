@@ -7,9 +7,10 @@
 class VibratoDetector {
 public:
     explicit VibratoDetector(int initialBufferSize)
-    : ringBuffer(initialBufferSize){
+            : ringBuffer(initialBufferSize) {
 
     }
+
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
         amplitude.skip(numSamples);
         juce::MidiBuffer passthrough;
@@ -27,16 +28,22 @@ public:
         }
 
         ringBuffer.push(vibratoData);
-
         amplitude.setTargetValue(static_cast<float>(ringBuffer.getRms()) * scaling);
+
+        if (true) {
+            passthrough.addEvent(
+                    juce::MidiMessage::controllerEvent(1, 21, static_cast<int>(amplitude.getCurrentValue())),
+                    1);
+        }
+
         midiMessages.swapWith(passthrough);
     }
 
-    int getAmplitude() const {
+    [[nodiscard]] int getAmplitude() const {
         return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
     }
 
-    int getRate() const {
+    [[nodiscard]] int getRate() const {
         return std::clamp(static_cast<int>(rate.getCurrentValue()), 0, 127);
     }
 
@@ -52,7 +59,7 @@ public:
         rateController = clampCCs(newCC);
     }
 
-    int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
+    static int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
     void resetValues(double sampleRate, int numBuffers, float newScaling) {
         amplitude.reset(sampleRate, rampLengthInSeconds);
@@ -63,7 +70,7 @@ public:
         ringBuffer.reset(numBuffers);
     }
 
-    void setScaling(float newScale){
+    void setScaling(float newScale) {
         scaling = newScale;
     }
 
@@ -80,4 +87,5 @@ private:
 
     juce::LinearSmoothedValue<float> amplitude;
     juce::LinearSmoothedValue<float> rate;
+    float prevAmplitude, prevRate = 0.f;
 };
