@@ -59,6 +59,10 @@ public:
         ringBuffer.reset(numBuffers);
     }
 
+    void setScaling(float newScale){
+        scaling = newScale;
+    }
+
 private:
 
     int inputController = 1;

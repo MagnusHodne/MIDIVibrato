@@ -10,7 +10,7 @@ MidiPluginProcessor::MidiPluginProcessor()
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 ), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
         std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 128, 5),
-        std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 0.f, 2.f, 10.f)
+        std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 1.f, 10.f, 2.f)
 }) {
     parameters.addParameterListener("numBuf", this);
     parameters.addParameterListener("scaling", this);
@@ -24,6 +24,7 @@ MidiPluginProcessor::~MidiPluginProcessor() {
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
     if (parameterID.equalsIgnoreCase("scaling")) {
         multiplier = newValue;
+        detector.setScaling(multiplier);
     }
     if (parameterID.equalsIgnoreCase("numBuf")) {
         numBuffers = static_cast<int>(newValue);
