@@ -10,15 +10,24 @@ MidiPluginProcessor::MidiPluginProcessor()
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 ), detector(numBuffers), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
         std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 128, 64),
+        std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
+        std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
+        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 19),
         std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 1.f, 20.f, 10.f)
 }) {
     parameters.addParameterListener("numBuf", this);
     parameters.addParameterListener("scaling", this);
+    parameters.addParameterListener("inputCC", this);
+    parameters.addParameterListener("ampCC", this);
+    parameters.addParameterListener("rateCC", this);
 }
 
 MidiPluginProcessor::~MidiPluginProcessor() {
     parameters.removeParameterListener("numBuf", this);
     parameters.removeParameterListener("scaling", this);
+    parameters.removeParameterListener("inputCC", this);
+    parameters.removeParameterListener("ampCC", this);
+    parameters.removeParameterListener("rateCC", this);
 }
 
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -28,6 +37,15 @@ void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, floa
     }
     if (parameterID.equalsIgnoreCase("numBuf")) {
         numBuffers = static_cast<int>(newValue);
+    }
+    if (parameterID.equalsIgnoreCase("inputCC")) {
+        detector.setInputController(static_cast<int>(newValue));
+    }
+    if (parameterID.equalsIgnoreCase("ampCC")) {
+        detector.setAmpController(static_cast<int>(newValue));
+    }
+    if (parameterID.equalsIgnoreCase("rateCC")) {
+        detector.setRateController(static_cast<int>(newValue));
     }
 }
 

@@ -23,12 +23,15 @@ private:
 
     Gui::MidiMeter amplitudeMeter, rateMeter;
     juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, buffersSlider, scalingSlider;
-    juce::AudioProcessorValueTreeState::SliderAttachment bufferSliderAtt, scalingSliderAtt;
+    juce::AudioProcessorValueTreeState::SliderAttachment bufferSliderAtt, scalingSliderAtt, inputSliderAtt, ampSliderAtt, rateSliderAtt;
 
-    Label ampMeterLabel{"ampLabel","Amplitude"},
-    rateMeterLabel{"rateLabel","Rate"},
-    bufferLabel {"bufLabel", "Number of buffers"},
-    scalingLabel {"scaleLabel", "Scaling/Multiplier"};
+    Label ampMeterLabel{"", "Amplitude"},
+            rateMeterLabel{"", "Rate"},
+            inputCCLabel{"", "Input CC"},
+            amptCCLabel{"", "Vibrato depth CC"},
+            rateCCLabel{"", "Vibrato rate CC"},
+            bufferLabel{"", "Number of buffers"},
+            scalingLabel{"", "Scaling"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginEditor)
 };
