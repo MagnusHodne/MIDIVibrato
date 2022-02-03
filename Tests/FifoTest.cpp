@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "../Source/Utility/Fifo.h"
+#include "../Source/Utility/VibratoBuffer.h"
 
 TEST_CASE("TestRMS", "[processors]")
 {
@@ -26,5 +26,4 @@ TEST_CASE("TestRate", "[processors]"){
     juce::MidiBuffer midiBuffer;
 
     REQUIRE(buffer.getRate() == 0);
-
 }
