@@ -1,0 +1,308 @@
+<REAPER_PROJECT 0.1 "6.45/win64" 1643897413
+  RIPPLE 0
+  GROUPOVERRIDE 0 1 1
+  AUTOXFADE 1
+  ENVATTACH 0
+  POOLEDENVATTACH 0
+  MIXERUIFLAGS 11 48
+  PEAKGAIN 1
+  FEEDBACK 0
+  PANLAW 1
+  PROJOFFS 0 0 0
+  MAXPROJLEN 0 600
+  GRID 3711 8 0.5 8 1 0 0 0
+  TIMEMODE 1 5 -1 30 0 0 -1
+  VIDEO_CONFIG 0 0 256
+  PANMODE 5
+  CURSOR 0
+  ZOOM 129.33068519497996 0 0
+  VZOOMEX 1 0
+  USE_REC_CFG 0
+  RECMODE 1
+  SMPTESYNC 0 30 100 40 1000 300 0 0 1 0 0
+  LOOP 1
+  LOOPGRAN 0 4
+  RECORD_PATH "" ""
+  <RECORD_CFG
+    ZXZhdxgAAA==
+  >
+  <APPLYFX_CFG
+  >
+  RENDER_FILE ""
+  RENDER_PATTERN ""
+  RENDER_FMT 0 2 0
+  RENDER_1X 0
+  RENDER_RANGE 1 0 0 18 1000
+  RENDER_RESAMPLE 3 0 1
+  RENDER_ADDTOPROJ 0
+  RENDER_STEMS 0
+  RENDER_DITHER 0
+  TIMELOCKMODE 1
+  TEMPOENVLOCKMODE 1
+  ITEMMIX 0
+  DEFPITCHMODE 589824 0
+  TAKELANE 1
+  SAMPLERATE 44100 0 0
+  <RENDER_CFG
+    ZXZhdxgAAA==
+  >
+  LOCK 1
+  <METRONOME 7 1
+    VOL 0.351487 0.247668
+    FREQ 1300 600 0
+    BEATLEN 1
+    SAMPLES "" ""
+    PATTERN 2863311530 2863311529
+    MULT 1
+  >
+  GLOBAL_AUTO -1
+  TEMPO 150 4 4
+  PLAYRATE 1 0 0.25 4
+  SELECTION 0 6.4
+  SELECTION2 0 6.4
+  MASTERAUTOMODE 0
+  MASTERTRACKHEIGHT 0 0
+  MASTERPEAKCOL 16576
+  MASTERMUTESOLO 0
+  MASTERTRACKVIEW 1 0.6667 0.5 0.5 0 -1 0 0 0 0 0 0 0
+  MASTERHWOUT 0 0 1 0 0 0 0 -1
+  MASTER_NCH 2 2
+  MASTER_VOLUME 1 0 -1 -1 1
+  MASTER_FX 1
+  MASTER_SEL 0
+  <MASTERPLAYSPEEDENV
+    EGUID {60097870-7B2D-493F-B6D4-657CBD8E512B}
+    ACT 0 -1
+    VIS 0 1 1
+    LANEHEIGHT 0 0
+    ARM 0
+    DEFSHAPE 0 -1 -1
+  >
+  <TEMPOENVEX
+    EGUID {6B95F326-919A-4134-A85E-F493D9E48287}
+    ACT 0 -1
+    VIS 1 0 1
+    LANEHEIGHT 0 0
+    ARM 0
+    DEFSHAPE 1 -1 -1
+  >
+  <PROJBAY
+  >
+  <TRACK {38DD0A18-F831-4DA1-83F9-A83225FD28BE}
+    NAME "Midi CC"
+    PEAKCOL 16576
+    BEAT -1
+    AUTOMODE 0
+    VOLPAN 1 0 -1 -1 1
+    MUTESOLO 0 0 0
+    IPHASE 0
+    PLAYOFFS 0 1
+    ISBUS 0 0
+    BUSCOMP 0 0 0 0 0
+    SHOWINMIX 1 0.6667 0.5 1 0.5 0 -1 0
+    FREEMODE 0
+    SEL 1
+    REC 1 5088 1 7 0 0 0
+    AUTO_RECARM 1
+    VU 2
+    TRACKHEIGHT 0 0 0 0 0 0
+    INQ 0 0 0 0.5 100 0 0 100
+    NCHAN 2
+    FX 1
+    TRACKID {38DD0A18-F831-4DA1-83F9-A83225FD28BE}
+    PERF 0
+    MIDIOUT -1
+    MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 1578 699 930 415
+      SHOW 1
+      LASTSEL 0
+      DOCKED 0
+      BYPASS 0 0 0
+      <VST "VST3: MIDI Vibrato (MagnusHodne)" "MIDI Vibrato.vst3" 0 "" 1515170733{ABCDEF019182FAEB4D61486F4D695669} ""
+        ratPWu5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAIAAAABAAAAAAAAAAIAAAAAAAAATAAAAAEAAAD//xAA
+        PAAAAAEAAAAAAAAAAAAAAEpVQ0VQcml2YXRlRGF0YQABAUJ5cGFzcwABAQMAHQAAAAAAAABKVUNFUHJpdmF0ZURhdGEAAAAAAAAAAA==
+        AFByb2dyYW0gMQAQAAAA
+      >
+      PRESETNAME "Program 1"
+      FLOATPOS 0 0 0 0
+      FXID {7E5FF089-0988-4084-AD71-B63AE1E73DE9}
+      WAK 0 0
+    >
+    <ITEM
+      POSITION 0
+      SNAPOFFS 0
+      LENGTH 6.4
+      LOOP 0
+      ALLTAKES 0
+      FADEIN 5 0 0 5 0 0 0
+      FADEOUT 5 0 0 5 0 0 0
+      MUTE 0 0
+      SEL 1
+      IGUID {4113C5F2-6ABD-4860-BD54-A2374D438FC5}
+      IID 2
+      NAME "Midi CC untitled MIDI item"
+      VOLPAN 1 0 1 -1
+      SOFFS 0 0
+      PLAYRATE 1 1 0 -1 0 0.0025
+      CHANMODE 0
+      GUID {B4F758B7-89FF-4EFC-B096-AFE9A28CE092}
+      <SOURCE MIDI
+        HASDATA 1 960 QN
+        CCINTERP 32
+        POOLEDEVTS {8ACCB066-FDD7-4D53-AC4F-EE5646AE89C3}
+        e 0 b0 02 40
+        ENV 2 0 0
+        e 240 b0 02 42
+        ENV 2 0 0
+        e 240 b0 02 3c
+        ENV 2 0 0
+        e 240 b0 02 46
+        ENV 2 0 0
+        e 240 b0 02 39
+        ENV 2 0 0
+        e 240 b0 02 49
+        ENV 2 0 0
+        e 240 b0 02 35
+        ENV 2 0 0
+        e 240 b0 02 4d
+        ENV 2 0 0
+        e 240 b0 02 31
+        ENV 2 0 0
+        e 240 b0 02 51
+        ENV 2 0 0
+        e 240 b0 02 2e
+        ENV 2 0 0
+        e 240 b0 02 55
+        ENV 2 0 0
+        e 240 b0 02 2a
+        ENV 2 0 0
+        e 240 b0 02 58
+        ENV 2 0 0
+        e 240 b0 02 26
+        ENV 2 0 0
+        e 240 b0 02 5c
+        ENV 2 0 0
+        e 240 b0 02 22
+        ENV 2 0 0
+        e 240 b0 02 60
+        ENV 2 0 0
+        e 240 b0 02 1f
+        ENV 2 0 0
+        e 240 b0 02 63
+        ENV 2 0 0
+        e 240 b0 02 1b
+        ENV 2 0 0
+        e 240 b0 02 67
+        ENV 2 0 0
+        e 240 b0 02 17
+        ENV 2 0 0
+        e 240 b0 02 6b
+        ENV 2 0 0
+        e 240 b0 02 13
+        ENV 2 0 0
+        e 240 b0 02 6f
+        ENV 2 0 0
+        e 240 b0 02 10
+        ENV 2 0 0
+        e 240 b0 02 72
+        ENV 2 0 0
+        e 240 b0 02 0c
+        ENV 2 0 0
+        e 240 b0 02 76
+        ENV 2 0 0
+        e 240 b0 02 08
+        ENV 2 0 0
+        e 240 b0 02 7a
+        ENV 2 0 0
+        e 239 b0 02 05
+        ENV 2 0 0
+        e 1 b0 02 05
+        ENV 2 0 0
+        e 240 b0 02 7a
+        ENV 2 0 0
+        e 240 b0 02 08
+        ENV 2 0 0
+        e 240 b0 02 76
+        ENV 2 0 0
+        e 240 b0 02 0c
+        ENV 2 0 0
+        e 240 b0 02 72
+        ENV 2 0 0
+        e 240 b0 02 10
+        ENV 2 0 0
+        e 240 b0 02 6f
+        ENV 2 0 0
+        e 240 b0 02 13
+        ENV 2 0 0
+        e 240 b0 02 6b
+        ENV 2 0 0
+        e 240 b0 02 17
+        ENV 2 0 0
+        e 240 b0 02 67
+        ENV 2 0 0
+        e 240 b0 02 1b
+        ENV 2 0 0
+        e 240 b0 02 63
+        ENV 2 0 0
+        e 240 b0 02 1f
+        ENV 2 0 0
+        e 240 b0 02 60
+        ENV 2 0 0
+        e 240 b0 02 22
+        ENV 2 0 0
+        e 240 b0 02 5c
+        ENV 2 0 0
+        e 240 b0 02 26
+        ENV 2 0 0
+        e 240 b0 02 58
+        ENV 2 0 0
+        e 240 b0 02 2a
+        ENV 2 0 0
+        e 240 b0 02 55
+        ENV 2 0 0
+        e 240 b0 02 2e
+        ENV 2 0 0
+        e 240 b0 02 51
+        ENV 2 0 0
+        e 240 b0 02 31
+        ENV 2 0 0
+        e 240 b0 02 4d
+        ENV 2 0 0
+        e 240 b0 02 35
+        ENV 2 0 0
+        e 240 b0 02 49
+        ENV 2 0 0
+        e 240 b0 02 39
+        ENV 2 0 0
+        e 240 b0 02 46
+        ENV 2 0 0
+        e 240 b0 02 3c
+        ENV 2 0 0
+        e 240 b0 02 42
+        ENV 2 0 0
+        e 239 b0 02 40
+        ENV 2 0 0
+        E 1 b0 7b 00
+        CCINTERP 32
+        CHASE_CC_TAKEOFFS 1
+        GUID {336E5BD9-D02D-43E1-B458-23D0B627B6BD}
+        IGNTEMPO 0 120 4 4
+        SRCCOLOR 63
+        VELLANE 2 209 0
+        VELLANE 25 209 0
+        CFGEDITVIEW -547.645202 0.072839 61 12 0 -1 0 0 0 0.5
+        KEYSNAP 0
+        TRACKSEL 186
+        EVTFILTER 0 -1 -1 -1 -1 0 0 0 0 -1 -1 -1 -1 0 -1 0 -1 -1
+        CFGEDIT 1 1 0 1 1 0 1 0 1 1 1 0.5 -10 1061 1918 2110 0 0 0 0 0 0 1 0 0 0 0 0 0.61 64
+      >
+    >
+  >
+  <EXTENSIONS
+    <SWSAUTOCOLOR
+      {00000000-0000-0000-0000-000000000000} 0 "" "" ""
+      {38DD0A18-F831-4DA1-83F9-A83225FD28BE} 0 "" "" ""
+    >
+  >
+>
