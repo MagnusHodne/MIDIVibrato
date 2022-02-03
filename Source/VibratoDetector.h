@@ -7,8 +7,7 @@
 class VibratoDetector {
 public:
     explicit VibratoDetector(int initialBufferSize)
-            : ringBuffer(initialBufferSize) {
-
+            : vibratoBuffer(initialBufferSize) {
     }
 
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
@@ -27,14 +26,12 @@ public:
             }
         }
 
-        ringBuffer.push(vibratoData);
-        amplitude.setTargetValue(static_cast<float>(ringBuffer.getRms()) * scaling);
+        vibratoBuffer.calculateValues(vibratoData);
+        amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * scaling);
 
-        if (true) {
-            passthrough.addEvent(
-                    juce::MidiMessage::controllerEvent(1, ampController, static_cast<int>(amplitude.getCurrentValue())),
-                    1);
-        }
+        passthrough.addEvent(
+                juce::MidiMessage::controllerEvent(1, ampController, static_cast<int>(amplitude.getCurrentValue())),
+                1);
 
         midiMessages.swapWith(passthrough);
     }
@@ -67,7 +64,7 @@ public:
 
         scaling = newScaling;
 
-        ringBuffer.reset(numBuffers);
+        vibratoBuffer.reset(numBuffers);
     }
 
     void setScaling(float newScale) {
@@ -80,7 +77,7 @@ private:
     int ampController = 21;
     int rateController = 19;
 
-    Utility::MidiRingBuffer ringBuffer;
+    Utility::VibratoBuffer vibratoBuffer;
 
     double rampLengthInSeconds = 0.5;
     float scaling = 1.f;

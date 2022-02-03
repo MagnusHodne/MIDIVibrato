@@ -6,32 +6,66 @@
 namespace Utility {
     using namespace juce;
 
-    class MidiRingBuffer {
+    ///Simple structure for storing average values that you can then get the total average from
+    ///Works as a "write-only" ring buffer, so you cannot read values from it (only the average)
+    class AverageRingBuffer {
     public:
 
-        explicit MidiRingBuffer(int initialBufferSize){
-            initialBufferSize = std::clamp(initialBufferSize, 1, 128);
-            ringBuffer = std::vector<int>(initialBufferSize, 0);
+        explicit AverageRingBuffer(int initialBufferSize) {
+            initialBufferSize = std::clamp(initialBufferSize, 1, 256);
+            buffer = std::vector<int>(initialBufferSize, 0);
+        }
+
+        void reset(int newBufferSize) {
+            newBufferSize = std::clamp(newBufferSize, 1, 256);
+            buffer = std::vector<int>(newBufferSize, 0);
+        }
+
+        void push(int averageVal) {
+            buffer[writeHead] = averageVal;
+            writeHead = (writeHead == buffer.size() - 1) ? 0 : writeHead + 1; //This is how we get a ring buffer...
+        }
+
+        float getAverage() {
+            float sum = 0.f;
+            for (auto val: buffer) {
+                sum += static_cast<float>(val);
+            }
+            return sum / static_cast<float>(buffer.size());
+        }
+
+    private:
+        std::vector<int> buffer;
+        int writeHead = 0;
+    };
+
+    class VibratoBuffer {
+    public:
+
+        explicit VibratoBuffer(int initialBufferSize) : rmsBuffer(initialBufferSize), rateBuffer(initialBufferSize) {
         }
 
         void reset(int numBuffersToHold) {
-            ringBuffer = std::vector<int>(numBuffersToHold, 0);
+            rmsBuffer.reset(numBuffersToHold);
+            rateBuffer.reset(numBuffersToHold);
         }
 
         /// You should call this method on each processBlock, passing in a buffer containing
         /// only the CC you wish to calculate RMS on
         /// \param buffer a MidiBuffer containing only the CC values you wish to analyze
-        void push(const MidiBuffer &buffer) {
-            ringBuffer[writeHead] = calculateRmsOfSingleBuffer(buffer);
-            writeHead = writeHead == ringBuffer.size()-1 ? 0 : writeHead + 1;
+        void calculateValues(const MidiBuffer &buffer) {
+            rmsBuffer.push(calculateRmsOfSingleBuffer(buffer));
+            rateBuffer.push(calculateNumCrossings(buffer));
         }
 
         int getRms() {
-            int sum = 0;
-            for(auto rms : ringBuffer){
-                sum += rms;
-            }
-            return sum/static_cast<int>(ringBuffer.size());
+            return static_cast<int>(rmsBuffer.getAverage());
+        }
+
+        /// Gets the average rate (to get the rate in Hz, you need to calculate it yourself based upon the number of samples in each buffer and the sample rate)
+        /// \return The average rate of all the buffers stored
+        float getRate() {
+            return rateBuffer.getAverage();
         }
 
     private:
@@ -44,16 +78,28 @@ namespace Utility {
                 const auto value = metadata.getMessage().getControllerValue();
                 sum += std::powf(static_cast<float>(value - halfMidi), 2.0);
             }
-            return static_cast<int>(std::sqrt(sum/static_cast<float>(buffer.getNumEvents())));
+            return static_cast<int>(std::sqrt(sum / static_cast<float>(buffer.getNumEvents())));
         }
 
-        std::vector<int> ringBuffer;
+        static int calculateNumCrossings(const MidiBuffer &buffer) {
+            if (buffer.isEmpty()) return 0;
 
-        int writeHead = 0;
-        //int size;
+            int sum = 0;
+            int prev = -1;
+
+            for (auto metadata: buffer) {
+                const auto value = metadata.getMessage().getControllerValue();
+                if (value == 63) sum++;
+            }
+
+            return sum;
+        }
+
+        AverageRingBuffer rmsBuffer;
+        AverageRingBuffer rateBuffer;
 
         //Since we are calculating amplitude from "center", we have to define that as our
         //baseline value
-        static constexpr int halfMidi = 128/2-1;
+        static constexpr int halfMidi = 128 / 2 - 1;
     };
 }
