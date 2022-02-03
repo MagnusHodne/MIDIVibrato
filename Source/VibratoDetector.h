@@ -28,10 +28,15 @@ public:
 
         vibratoBuffer.calculateValues(vibratoData);
         amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * scaling);
+        rate.setTargetValue(vibratoBuffer.getRate()); //TODO - Scale this based upon samplesPerBlock and sampleRate...
 
         passthrough.addEvent(
-                juce::MidiMessage::controllerEvent(1, ampController, static_cast<int>(amplitude.getCurrentValue())),
+                juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
                 1);
+
+        passthrough.addEvent(
+                juce::MidiMessage::controllerEvent(1, rateController, getRate()),
+                2);
 
         midiMessages.swapWith(passthrough);
     }
