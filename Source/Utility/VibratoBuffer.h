@@ -89,7 +89,9 @@ namespace Utility {
 
             for (auto metadata: buffer) {
                 const auto value = metadata.getMessage().getControllerValue();
-                if (value == 63) sum++;
+                //prev < halfMidi && value >= halfMidi || prev > halfMidi && value <= halfMidi
+                if (prev < halfMidi && value >= halfMidi || prev > halfMidi && value <= halfMidi) sum++;
+                prev = value;
             }
 
             return sum;
