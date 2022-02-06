@@ -30,7 +30,8 @@ public:
         }
 
         vibratoBuffer.calculateValues(vibratoData);
-        amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * ampScaling);
+        auto mappedAmplitude = juce::jmap(vibratoBuffer.getRms(), 0, 63, 0, 127);
+        amplitude.setTargetValue(static_cast<float>(mappedAmplitude) * ampScaling);
 
         //Should be a Hz value times scaling
         rate.setTargetValue(vibratoBuffer.getRate() * getNumBlocksPerSecond());
