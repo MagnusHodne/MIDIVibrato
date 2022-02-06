@@ -9,7 +9,6 @@ TEST_CASE("TestOneHz", "[processors]")
     double sampleRate = 48000;
 
     detector.setMetadata(sampleRate, samplesPerBlock);
-    detector.setRateScaling(1.f);
     auto numBlocksPerSecond = sampleRate/samplesPerBlock;
     auto inputController = 2;
     detector.setInputController(inputController);

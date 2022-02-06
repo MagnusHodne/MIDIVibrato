@@ -25,9 +25,9 @@ TEST_CASE("TestRate", "[processors]"){
     Utility::VibratoBuffer buffer(1);
     juce::MidiBuffer noData, oneCrossing, twoCrossing, threeCrossing;
 
-    REQUIRE(buffer.getRate() == 0);
+    REQUIRE(buffer.getAvgNumCrossings() == 0);
     buffer.calculateValues(noData);
-    REQUIRE(buffer.getRate() == 0);
+    REQUIRE(buffer.getAvgNumCrossings() == 0);
 
     oneCrossing.addEvent(juce::MidiMessage::controllerEvent(1, 1, 0), 1);
     oneCrossing.addEvent(juce::MidiMessage::controllerEvent(1, 1, 127), 2);
@@ -41,11 +41,11 @@ TEST_CASE("TestRate", "[processors]"){
     REQUIRE(threeCrossing.getNumEvents() == 4);
     //============================================
     buffer.calculateValues(oneCrossing);
-    REQUIRE(buffer.getRate() == 1.f);
+    REQUIRE(buffer.getAvgNumCrossings() == 1.f);
     buffer.calculateValues(twoCrossing);
-    REQUIRE(buffer.getRate() == 2.f);
+    REQUIRE(buffer.getAvgNumCrossings() == 2.f);
     buffer.calculateValues(threeCrossing);
-    REQUIRE(buffer.getRate() == 3.f);
+    REQUIRE(buffer.getAvgNumCrossings() == 3.f);
 
     //============================================
     buffer.reset(4);
@@ -54,7 +54,7 @@ TEST_CASE("TestRate", "[processors]"){
     buffer.calculateValues(oneCrossing);
     buffer.calculateValues(noData);
 
-    REQUIRE(buffer.getRate() == 0.5f);
+    REQUIRE(buffer.getAvgNumCrossings() == 0.5f);
 
     //============================================
     buffer.reset(4);
@@ -63,5 +63,5 @@ TEST_CASE("TestRate", "[processors]"){
     buffer.calculateValues(oneCrossing);
     buffer.calculateValues(noData);
 
-    REQUIRE(buffer.getRate() == 0.75f);
+    REQUIRE(buffer.getAvgNumCrossings() == 0.75f);
 }

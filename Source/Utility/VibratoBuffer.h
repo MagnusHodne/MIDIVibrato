@@ -64,7 +64,7 @@ namespace Utility {
 
         /// Gets the average rate (to get the rate in Hz, you need to calculate it yourself based upon the number of samples in each buffer and the sample rate)
         /// \return The average rate of all the buffers stored
-        float getRate() {
+        float getAvgNumCrossings() {
             return rateBuffer.getAverage();
         }
 

@@ -34,7 +34,7 @@ public:
         amplitude.setTargetValue(static_cast<float>(mappedAmplitude) * ampScaling);
 
         //Should be a Hz value times scaling
-        rate.setTargetValue(vibratoBuffer.getRate() * getNumBlocksPerSecond());
+        rate.setTargetValue(vibratoBuffer.getAvgNumCrossings() * getNumBlocksPerSecond());
 
         passthrough.addEvent(
                 juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
