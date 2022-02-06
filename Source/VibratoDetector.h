@@ -33,7 +33,7 @@ public:
         amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * ampScaling);
 
         //Should be a Hz value times scaling
-        rate.setTargetValue(vibratoBuffer.getRate() * getNumBlocksPerSecond() * rateScaling);
+        rate.setTargetValue(vibratoBuffer.getRate() * getNumBlocksPerSecond());
 
         passthrough.addEvent(
                 juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
@@ -55,7 +55,8 @@ public:
         //These are the min-max Hz rates in Aaron Venture...
         float minRate = 1.68f;
         float maxRate = 7.33f;
-        return std::clamp(static_cast<int>(rate.getCurrentValue()), 0, 127);
+        auto rawRate = std::clamp(rate.getCurrentValue(), minRate, maxRate);
+        return static_cast<int>(juce::jmap(rawRate, minRate, maxRate, 0.f, 127.f));
     }
 
     [[nodiscard]] float getTargetRate() const {
@@ -82,17 +83,13 @@ public:
         amplitude.setCurrentAndTargetValue(0.f);
         rate.setCurrentAndTargetValue(0.f);
 
-        ampScaling = rateScaling = newScaling;
+        ampScaling = newScaling;
 
         vibratoBuffer.reset(numBuffers);
     }
 
     void setAmpScaling(float newScale) {
         ampScaling = newScale;
-    }
-
-    void setRateScaling(float newScale){
-        rateScaling = newScale;
     }
 
     void setMetadata(double sampleRate, int samplesPerBlock) {
@@ -112,7 +109,7 @@ private:
     Utility::VibratoBuffer vibratoBuffer;
 
     double rampLengthInSeconds = 0.5;
-    float ampScaling, rateScaling = 1.f;
+    float ampScaling = 1.f;
 
     double sr;
     int spb;
