@@ -6,6 +6,8 @@
 
 class VibratoDetector {
 public:
+    ///
+    /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
     explicit VibratoDetector(int initialBufferSize)
             : vibratoBuffer(initialBufferSize) {
     }
@@ -29,7 +31,9 @@ public:
 
         vibratoBuffer.calculateValues(vibratoData);
         amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * ampScaling);
-        rate.setTargetValue(vibratoBuffer.getRate() * rateScaling);
+
+        //Should be a Hz value times scaling
+        rate.setTargetValue(vibratoBuffer.getRate() * getNumBlocksPerSecond() * rateScaling);
 
         passthrough.addEvent(
                 juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
@@ -46,18 +50,16 @@ public:
         return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
     }
 
+    //Should return rate mapped to the correct values...
     [[nodiscard]] int getRate() const {
+        //These are the min-max Hz rates in Aaron Venture...
+        float minRate = 1.68f;
+        float maxRate = 7.33f;
         return std::clamp(static_cast<int>(rate.getCurrentValue()), 0, 127);
     }
 
-    float getRateHz() const {
-        //Hz should be num crossings per second
-        //Rate is currently avg. num crossings for all blocks
-        //Find out how many blocks there are in a second first
-
-        //samplerate/numSamplesInBlock = numBlocksPerSecond
-        //numCrossingsPerBlock * sampleRate/numSamplesInBlock = numCrossingsPerSecond;
-        return rate.getCurrentValue();
+    [[nodiscard]] float getTargetRate() const {
+        return rate.getTargetValue();
     }
 
     void setInputController(int newCC) {
