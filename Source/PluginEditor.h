@@ -22,16 +22,17 @@ private:
     MidiPluginProcessor &processorRef;
 
     Gui::MidiMeter amplitudeMeter, rateMeter;
-    juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, buffersSlider, scalingSlider;
-    juce::AudioProcessorValueTreeState::SliderAttachment bufferSliderAtt, scalingSliderAtt, inputSliderAtt, ampSliderAtt, rateSliderAtt;
+    juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, buffersSlider, ampScalingSlider, rateScalingSlider;
+    juce::AudioProcessorValueTreeState::SliderAttachment bufferSliderAtt, ampScalingSliderAtt, rateScalingSliderAtt, inputSliderAtt, ampSliderAtt, rateSliderAtt;
 
     Label ampMeterLabel{"", "Amplitude"},
             rateMeterLabel{"", "Rate"},
             inputCCLabel{"", "Input CC"},
-            amptCCLabel{"", "Vibrato depth CC"},
+            ampCCLabel{"", "Vibrato depth CC"},
             rateCCLabel{"", "Vibrato rate CC"},
             bufferLabel{"", "Number of buffers"},
-            scalingLabel{"", "Scaling"};
+            ampScalingLabel{"", "Amplitude scaling"},
+            rateScalingLabel{"", "Rate scaling"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginEditor)
 };

@@ -12,6 +12,7 @@ public:
 
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
         amplitude.skip(numSamples);
+        rate.skip(numSamples);
         juce::MidiBuffer passthrough;
         juce::MidiBuffer vibratoData;
 
@@ -27,8 +28,8 @@ public:
         }
 
         vibratoBuffer.calculateValues(vibratoData);
-        amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * scaling);
-        rate.setTargetValue(vibratoBuffer.getRate()); //TODO - Scale this based upon samplesPerBlock and sampleRate...
+        amplitude.setTargetValue(static_cast<float>(vibratoBuffer.getRms()) * ampScaling);
+        rate.setTargetValue(vibratoBuffer.getRate() * rateScaling);
 
         passthrough.addEvent(
                 juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
@@ -65,15 +66,21 @@ public:
 
     void resetValues(double sampleRate, int numBuffers, float newScaling) {
         amplitude.reset(sampleRate, rampLengthInSeconds);
+        rate.reset(sampleRate, rampLengthInSeconds);
         amplitude.setCurrentAndTargetValue(0.f);
+        rate.setCurrentAndTargetValue(0.f);
 
-        scaling = newScaling;
+        ampScaling = rateScaling = newScaling;
 
         vibratoBuffer.reset(numBuffers);
     }
 
-    void setScaling(float newScale) {
-        scaling = newScale;
+    void setAmpScaling(float newScale) {
+        ampScaling = newScale;
+    }
+
+    void setRateScaling(float newScale){
+        rateScaling = newScale;
     }
 
 private:
@@ -85,9 +92,7 @@ private:
     Utility::VibratoBuffer vibratoBuffer;
 
     double rampLengthInSeconds = 0.5;
-    float scaling = 1.f;
+    float ampScaling, rateScaling = 1.f;
 
-    juce::LinearSmoothedValue<float> amplitude;
-    juce::LinearSmoothedValue<float> rate;
-    float prevAmplitude, prevRate = 0.f;
+    juce::LinearSmoothedValue<float> amplitude, rate;
 };

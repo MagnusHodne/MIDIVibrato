@@ -10,7 +10,8 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
           ampSliderAtt(p.getApvts(), "ampCC", ampCCSlider),
           rateSliderAtt(p.getApvts(), "rateCC", rateCCSlider),
           bufferSliderAtt(p.getApvts(), "numBuf", buffersSlider),
-          scalingSliderAtt(p.getApvts(), "scaling", scalingSlider) {
+          ampScalingSliderAtt(p.getApvts(), "ampScaling", ampScalingSlider),
+          rateScalingSliderAtt(p.getApvts(), "rateScaling", rateScalingSlider){
 
     addAndMakeVisible(amplitudeMeter);
     addAndMakeVisible(ampMeterLabel);
@@ -26,8 +27,8 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
 
     addAndMakeVisible(ampCCSlider);
     ampCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
-    addAndMakeVisible(amptCCLabel);
-    amptCCLabel.setJustificationType(Justification::right);
+    addAndMakeVisible(ampCCLabel);
+    ampCCLabel.setJustificationType(Justification::right);
 
     addAndMakeVisible(rateCCSlider);
     rateCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
@@ -39,18 +40,24 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
     addAndMakeVisible(bufferLabel);
     bufferLabel.setJustificationType(Justification::right);
 
-    addAndMakeVisible(scalingSlider);
-    scalingSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-    scalingSlider.setNumDecimalPlacesToDisplay(1);
-    addAndMakeVisible(scalingLabel);
-    scalingLabel.setJustificationType(Justification::right);
+    addAndMakeVisible(ampScalingSlider);
+    ampScalingSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    ampScalingSlider.setNumDecimalPlacesToDisplay(1);
+    addAndMakeVisible(ampScalingLabel);
+    ampScalingLabel.setJustificationType(Justification::right);
+
+    addAndMakeVisible(rateScalingSlider);
+    rateScalingSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    rateScalingSlider.setNumDecimalPlacesToDisplay(1);
+    addAndMakeVisible(rateScalingLabel);
+    rateScalingLabel.setJustificationType(Justification::right);
 
     setResizable(false, false);
 
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(400, (15*10)+40);
+    setSize(400, (15*11)+40);
 }
 
 void MidiPluginEditor::paint(juce::Graphics &g) {
@@ -73,8 +80,11 @@ void MidiPluginEditor::resized() {
     labelArea.removeFromTop(height*2);
     inputArea.removeFromTop(height*2);
 
-    scalingSlider.setBounds(inputArea.removeFromTop(height));
-    scalingLabel.setBounds(labelArea.removeFromTop(height));
+    ampScalingSlider.setBounds(inputArea.removeFromTop(height));
+    ampScalingLabel.setBounds(labelArea.removeFromTop(height));
+
+    rateScalingSlider.setBounds(inputArea.removeFromTop(height));
+    rateScalingLabel.setBounds(labelArea.removeFromTop(height));
 
     buffersSlider.setBounds(inputArea.removeFromTop(height));
     bufferLabel.setBounds(labelArea.removeFromTop(height));
@@ -83,7 +93,7 @@ void MidiPluginEditor::resized() {
     inputCCLabel.setBounds(labelArea.removeFromTop(height));
 
     ampCCSlider.setBounds(inputArea.removeFromTop(height));
-    amptCCLabel.setBounds(labelArea.removeFromTop(height));
+    ampCCLabel.setBounds(labelArea.removeFromTop(height));
 
     rateCCSlider.setBounds(inputArea.removeFromTop(height));
     rateCCLabel.setBounds(labelArea.removeFromTop(height));

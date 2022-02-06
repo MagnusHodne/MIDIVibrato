@@ -13,10 +13,12 @@ MidiPluginProcessor::MidiPluginProcessor()
         std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
         std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 19),
-        std::make_unique<juce::AudioParameterFloat>("scaling", "Scaling", 1.f, 20.f, 10.f)
+        std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 20.f, 10.f),
+        std::make_unique<juce::AudioParameterFloat>("rateScaling", "Rate scaling", 20.f, 120.f, 60.f)
 }) {
     parameters.addParameterListener("numBuf", this);
-    parameters.addParameterListener("scaling", this);
+    parameters.addParameterListener("ampScaling", this);
+    parameters.addParameterListener("rateScaling", this);
     parameters.addParameterListener("inputCC", this);
     parameters.addParameterListener("ampCC", this);
     parameters.addParameterListener("rateCC", this);
@@ -24,16 +26,21 @@ MidiPluginProcessor::MidiPluginProcessor()
 
 MidiPluginProcessor::~MidiPluginProcessor() {
     parameters.removeParameterListener("numBuf", this);
-    parameters.removeParameterListener("scaling", this);
+    parameters.removeParameterListener("ampScaling", this);
+    parameters.removeParameterListener("rateScaling", this);
     parameters.removeParameterListener("inputCC", this);
     parameters.removeParameterListener("ampCC", this);
     parameters.removeParameterListener("rateCC", this);
 }
 
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
-    if (parameterID.equalsIgnoreCase("scaling")) {
+    if (parameterID.equalsIgnoreCase("ampScaling")) {
         multiplier = newValue;
-        detector.setScaling(multiplier);
+        detector.setAmpScaling(multiplier);
+    }
+    if (parameterID.equalsIgnoreCase("rateScaling")) {
+        multiplier = newValue;
+        detector.setRateScaling(multiplier);
     }
     if (parameterID.equalsIgnoreCase("numBuf")) {
         numBuffers = static_cast<int>(newValue);
