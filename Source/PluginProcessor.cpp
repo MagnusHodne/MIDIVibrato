@@ -12,8 +12,8 @@ MidiPluginProcessor::MidiPluginProcessor()
         std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 128, 64),
         std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
-        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 19),
-        std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 20.f, 10.f),
+        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20),
+        std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 30.f, 20.f),
         std::make_unique<juce::AudioParameterFloat>("rateScaling", "Rate scaling", 20.f, 120.f, 60.f)
 }) {
     parameters.addParameterListener("numBuf", this);

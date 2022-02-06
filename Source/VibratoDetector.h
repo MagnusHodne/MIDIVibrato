@@ -87,7 +87,7 @@ private:
 
     int inputController = 2;
     int ampController = 21;
-    int rateController = 19;
+    int rateController = 20;
 
     Utility::VibratoBuffer vibratoBuffer;
 
