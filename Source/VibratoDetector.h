@@ -50,6 +50,16 @@ public:
         return std::clamp(static_cast<int>(rate.getCurrentValue()), 0, 127);
     }
 
+    float getRateHz() const {
+        //Hz should be num crossings per second
+        //Rate is currently avg. num crossings for all blocks
+        //Find out how many blocks there are in a second first
+
+        //samplerate/numSamplesInBlock = numBlocksPerSecond
+        //numCrossingsPerBlock * sampleRate/numSamplesInBlock = numCrossingsPerSecond;
+        return rate.getCurrentValue();
+    }
+
     void setInputController(int newCC) {
         inputController = clampCCs(newCC);
     }
@@ -64,9 +74,9 @@ public:
 
     static int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
-    void resetValues(double sampleRate, int numBuffers, float newScaling) {
-        amplitude.reset(sampleRate, rampLengthInSeconds);
-        rate.reset(sampleRate, rampLengthInSeconds);
+    void resetValues(int numBuffers, float newScaling) {
+        amplitude.reset(sr, rampLengthInSeconds);
+        rate.reset(sr, rampLengthInSeconds);
         amplitude.setCurrentAndTargetValue(0.f);
         rate.setCurrentAndTargetValue(0.f);
 
@@ -83,7 +93,15 @@ public:
         rateScaling = newScale;
     }
 
+    void setMetadata(double sampleRate, int samplesPerBlock) {
+        sr = sampleRate;
+        spb = samplesPerBlock;
+    }
+
 private:
+    [[nodiscard]] float getNumBlocksPerSecond() const{
+        return static_cast<float>(sr)/spb;
+    }
 
     int inputController = 2;
     int ampController = 21;
@@ -93,6 +111,9 @@ private:
 
     double rampLengthInSeconds = 0.5;
     float ampScaling, rateScaling = 1.f;
+
+    double sr;
+    int spb;
 
     juce::LinearSmoothedValue<float> amplitude, rate;
 };

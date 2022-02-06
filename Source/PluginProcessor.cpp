@@ -61,7 +61,8 @@ void MidiPluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) 
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     juce::ignoreUnused(samplesPerBlock);
-    detector.resetValues(sampleRate, numBuffers, multiplier);
+    detector.resetValues(numBuffers, multiplier);
+    detector.setMetadata(sampleRate, samplesPerBlock);
 }
 
 void MidiPluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
