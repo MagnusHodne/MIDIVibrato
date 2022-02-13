@@ -16,7 +16,7 @@ TEST_CASE("TestOneHz", "[processors]")
     detector.setInputController(inputController);
     auto frequency = 1.f;
 
-    MidiSineGenerator gen(inputController, frequency, sampleRate, samplesPerBlock);
+    Utility::MidiSineGenerator gen(inputController, frequency, sampleRate, samplesPerBlock);
     juce::MidiBuffer buffer;
     for(int i = 0; i < initialBufferSize; i++){
         buffer.clear();
