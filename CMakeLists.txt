@@ -46,7 +46,8 @@ target_compile_features("${TARGET_NAME}" PRIVATE cxx_std_20)
 set(SourceFiles
     Source/Component/MidiMeter.h
     Source/VibratoDetector.h
-        Source/Utility/VibratoBuffer.h
+    Source/Utility/VibratoBuffer.h
+    Source/Utility/MidiSineGenerator.h
     Source/PluginEditor.h
     Source/PluginEditor.cpp
     Source/PluginProcessor.h

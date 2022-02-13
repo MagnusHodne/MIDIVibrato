@@ -18,11 +18,16 @@ public:
     }
     void fillBuffer(juce::MidiBuffer& bufferToFill){
         int currentSample;
+        int prevSample = -1;
+
         for (auto sample = 0; sample < spb; ++sample){
             currentSample = static_cast<int>(juce::jmap(std::sin(currentAngle), 0., 127.));
             //auto currentSample = std::sin(currentAngle);
             currentAngle += angleDelta;
-            bufferToFill.addEvent(juce::MidiMessage::controllerEvent(1, controller, currentSample), sample);
+            if(currentSample != prevSample){
+                bufferToFill.addEvent(juce::MidiMessage::controllerEvent(1, controller, currentSample), sample);
+            }
+            prevSample = currentSample;
         }
     }
 private:
