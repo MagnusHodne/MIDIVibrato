@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
+#include <catch2/generators/catch_generators_all.hpp>
 #include "../Source/Utility/VibratoBuffer.h"
 #include "../Source/Utility/MidiSineGenerator.h"
 
@@ -24,9 +25,9 @@ TEST_CASE("TestRMS", "[processors]")
 }
 
 TEST_CASE("Test Rate", "[processors]"){
-    Utility::VibratoBuffer ringBuffer(2000);
+    float frequency = GENERATE(1.5f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f);
+    Utility::VibratoBuffer ringBuffer(64);
     int inputController = 2;
-    float frequency = 4.f;
     double sampleRate = 48000;
     int samplesPerBlock = 256;
 
@@ -39,6 +40,6 @@ TEST_CASE("Test Rate", "[processors]"){
         ringBuffer.calculateValues(buffer);
     }
 
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.5));
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.01));
     //REQUIRE(ringBuffer.getAvgNumCrossings(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.02));
 }
