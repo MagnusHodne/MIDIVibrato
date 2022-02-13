@@ -31,7 +31,7 @@ public:
 
         vibratoBuffer.calculateValues(vibratoData);
         auto mappedAmplitude = juce::jmap(vibratoBuffer.getRms(), 0, 63, 0, 127);
-        amplitude.setTargetValue(static_cast<float>(mappedAmplitude) * ampScaling);
+        amplitude.setTargetValue(static_cast<float>(mappedAmplitude));
 
         //Should be a Hz value times scaling
         rate.setTargetValue(vibratoBuffer.getAvgNumCrossings() * getNumBlocksPerSecond());
@@ -53,9 +53,6 @@ public:
 
     //Should return rate mapped to the correct values...
     [[nodiscard]] int getRate() const {
-        //These are the min-max Hz rates in Aaron Venture...
-        float minRate = 1.68f;
-        float maxRate = 7.33f;
         auto rawRate = std::clamp(rate.getCurrentValue(), minRate, maxRate);
         return static_cast<int>(juce::jmap(rawRate, minRate, maxRate, 0.f, 127.f));
     }
@@ -98,6 +95,13 @@ public:
         spb = samplesPerBlock;
     }
 
+    /// Sets the new min and max rates for the vibrato. These values should correspond to the min/max
+    /// of whatever instrument you are playing, so that the output rateCC correctly maps from 0-127
+    void setMinMaxRate(float newMinRate, float newMaxRate){
+        minRate = newMinRate;
+        maxRate = newMaxRate;
+    }
+
 private:
     [[nodiscard]] float getNumBlocksPerSecond() const{
         return static_cast<float>(sr)/spb;
@@ -110,10 +114,12 @@ private:
     Utility::VibratoBuffer vibratoBuffer;
 
     double rampLengthInSeconds = 0.5;
+    //These are the min-max Hz rates in Aaron Venture...
+    float minRate = 1.68f, maxRate = 7.33f;
     float ampScaling = 1.f;
 
-    double sr;
-    int spb;
+    double sr; //Sample rate
+    int spb; //Samples per buffer
 
     juce::LinearSmoothedValue<float> amplitude, rate;
 };
