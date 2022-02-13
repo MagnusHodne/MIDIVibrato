@@ -101,9 +101,6 @@ public:
     }
 
 private:
-    [[nodiscard]] float getNumBlocksPerSecond() const{
-        return static_cast<float>(sr)/spb;
-    }
 
     int inputController = 2;
     int ampController = 21;
