@@ -34,10 +34,6 @@ namespace Utility {
             return sum / static_cast<float>(buffer.size());
         }
 
-        int getSize(){
-            return buffer.size();
-        }
-
     private:
         std::vector<int> buffer;
         int writeHead = 0;
@@ -66,13 +62,18 @@ namespace Utility {
             return static_cast<int>(rmsBuffer.getAverage());
         }
 
+        float getRate(double sampleRate, int samplesPerBlock){
+            //Since a wave crosses zero twice per period, we have to divide by two to get the correct number
+            return getAvgNumCrossings()/2 * (float)(sampleRate/samplesPerBlock);
+        }
+
+    private:
+
         /// Gets the average number of crossings per buffer, based upon all the buffers stored. Remember that num crossings is double the Hz!
         /// \return The average rate of all the buffers stored
         float getAvgNumCrossings() {
             return rateBuffer.getAverage();
         }
-
-    private:
         static int calculateRmsOfSingleBuffer(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
