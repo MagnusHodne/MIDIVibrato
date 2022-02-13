@@ -22,6 +22,7 @@ set(UnitTests
 # used in the application, it is probably better to just include the files we actually need
 set(TestedFiles
         ../Source/VibratoDetector.h
+        ../Source/Utility/MidiSineGenerator.h
         ../Source/Utility/VibratoBuffer.h)
 
 juce_add_console_app(MyPluginTests
