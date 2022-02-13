@@ -16,6 +16,7 @@ set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
         VibratoDetectorTest.cpp
+        SineWaveGeneratorTest.cpp
         FifoTest.cpp)
 
 # A list of all the files that we need for our unit tests. Unless you write tests for every single class

@@ -1,5 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 #include "../Source/Utility/VibratoBuffer.h"
+#include "../Source/Utility/MidiSineGenerator.h"
 
 TEST_CASE("TestRMS", "[processors]")
 {
@@ -21,7 +23,7 @@ TEST_CASE("TestRMS", "[processors]")
     REQUIRE(ringBuffer.getRms() == 63);
 }
 
-TEST_CASE("TestRate", "[processors]"){
+TEST_CASE("TestRatePrimitive", "[processors]"){
     Utility::VibratoBuffer buffer(1);
     juce::MidiBuffer noData, oneCrossing, twoCrossing, threeCrossing;
 
@@ -64,4 +66,28 @@ TEST_CASE("TestRate", "[processors]"){
     buffer.calculateValues(noData);
 
     REQUIRE(buffer.getAvgNumCrossings() == 0.75f);
+}
+
+TEST_CASE("Test Rate", "[processors]"){
+    Utility::VibratoBuffer ringBuffer(2000);
+    int inputController = 2;
+    float frequency = 4.f;
+    double sampleRate = 48000;
+    int samplesPerBlock = 256;
+
+    //sampleRate/samplesPerBlock num blocks per second (187,5 in the case of 48000/256)
+    //Expect avg.num crossings times 187,5 to be roughly 1...
+
+
+    Utility::MidiSineGenerator sineGenerator(inputController, frequency, sampleRate, samplesPerBlock);
+
+    juce::MidiBuffer buffer;
+    for(int i = 0; i < 190; i++){
+        buffer.clear();
+        sineGenerator.fillBuffer(buffer);
+        ringBuffer.calculateValues(buffer);
+    }
+
+    REQUIRE((ringBuffer.getAvgNumCrossings()/2)*(sampleRate/samplesPerBlock) == Catch::Approx(frequency).margin(0.5));
+    //REQUIRE(ringBuffer.getAvgNumCrossings(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.02));
 }

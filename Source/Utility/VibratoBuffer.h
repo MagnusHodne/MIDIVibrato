@@ -34,6 +34,10 @@ namespace Utility {
             return sum / static_cast<float>(buffer.size());
         }
 
+        int getSize(){
+            return buffer.size();
+        }
+
     private:
         std::vector<int> buffer;
         int writeHead = 0;
@@ -62,7 +66,7 @@ namespace Utility {
             return static_cast<int>(rmsBuffer.getAverage());
         }
 
-        /// Gets the average rate (to get the rate in Hz, you need to calculate it yourself based upon the number of samples in each buffer and the sample rate)
+        /// Gets the average number of crossings per buffer, based upon all the buffers stored. Remember that num crossings is double the Hz!
         /// \return The average rate of all the buffers stored
         float getAvgNumCrossings() {
             return rateBuffer.getAverage();
@@ -81,6 +85,7 @@ namespace Utility {
             return static_cast<int>(std::sqrt(sum / static_cast<float>(buffer.getNumEvents())));
         }
 
+        /// Calculates how many zero crossings there are in the supplied buffer (zero-crossing defined as crossing a MIDI value of 63
         static int calculateNumCrossings(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
@@ -89,8 +94,16 @@ namespace Utility {
 
             for (auto metadata: buffer) {
                 const auto value = metadata.getMessage().getControllerValue();
-                //prev < halfMidi && value >= halfMidi || prev > halfMidi && value <= halfMidi
-                if (prev < halfMidi && value >= halfMidi || prev > halfMidi && value <= halfMidi) sum++;
+                if(prev < 0) {
+                    if(value == halfMidi){
+                        sum++;
+                    }
+                    prev = value;
+                    continue;
+                } else if(prev != value) {
+                    if(prev < halfMidi && value >= halfMidi) sum++;
+                    if(prev > halfMidi && value <= halfMidi) sum++;
+                }
                 prev = value;
             }
 
@@ -102,6 +115,6 @@ namespace Utility {
 
         //Since we are calculating amplitude from "center", we have to define that as our
         //baseline value
-        static constexpr int halfMidi = 128 / 2 - 1;
+        static constexpr int halfMidi = 128 / 2 - 1; //= 63
     };
 }
