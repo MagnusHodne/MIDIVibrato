@@ -3,22 +3,16 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/juce_core.h"
 #include "Utility/VibratoBuffer.h"
-#include "Utility/MidiSineGenerator.h"
 
 class VibratoDetector {
 public:
     ///
     /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
     explicit VibratoDetector(int initialBufferSize)
-            : vibratoBuffer(initialBufferSize), sineGen(inputController, 1.f, 0, 0) {
+            : vibratoBuffer(initialBufferSize) {
     }
 
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
-        {
-            //TODO - REMOVE THIS
-            midiMessages.clear();
-            sineGen.fillBuffer(midiMessages);
-        }
         amplitude.skip(numSamples);
         rate.skip(numSamples);
         juce::MidiBuffer passthrough;
@@ -99,7 +93,6 @@ public:
     void setMetadata(double sampleRate, int samplesPerBlock) {
         sr = sampleRate;
         spb = samplesPerBlock;
-        sineGen.updateValues(sampleRate, samplesPerBlock);
     }
 
     /// Sets the new min and max rates for the vibrato. These values should correspond to the min/max
@@ -119,7 +112,6 @@ private:
     int rateController = 20;
 
     Utility::VibratoBuffer vibratoBuffer;
-    Utility::MidiSineGenerator sineGen; //TODO - REMOVE ME LATER!
 
     double rampLengthInSeconds = 0.5;
     //These are the min-max Hz rates in Aaron Venture...
