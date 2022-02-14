@@ -45,10 +45,6 @@ namespace Utility {
             return (float) sum / (float) data.size();
         }
 
-        void shouldCenterBe63() {
-
-        }
-
     private:
         void write(int numSamplesToWrite) {
             if (numSamplesToWrite == 0) return;
