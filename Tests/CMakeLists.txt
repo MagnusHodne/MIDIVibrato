@@ -16,6 +16,7 @@ set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
         VibratoDetectorTest.cpp
+        MidiRingBufferTest.cpp
         SineWaveGeneratorTest.cpp
         FifoTest.cpp)
 
@@ -24,6 +25,7 @@ set(UnitTests
 set(TestedFiles
         ../Source/VibratoDetector.h
         ../Source/Utility/MidiSineGenerator.h
+        ../Source/Utility/MidiRingBuffer.h
         ../Source/Utility/VibratoBuffer.h)
 
 juce_add_console_app(MyPluginTests
