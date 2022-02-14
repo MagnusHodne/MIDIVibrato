@@ -26,7 +26,7 @@ TEST_CASE("TestRMS", "[processors]")
 
 TEST_CASE("Test Rate", "[processors]"){
     float frequency = GENERATE(1.5f, 3.f, 5.f, 7.f, 9.f);
-    int initBufferSize = 64;
+    int initBufferSize = 256;
     Utility::VibratoBuffer ringBuffer(initBufferSize);
     int inputController = 2;
     double sampleRate = 48000;
@@ -35,11 +35,11 @@ TEST_CASE("Test Rate", "[processors]"){
     Utility::MidiSineGenerator sineGenerator(inputController, frequency, sampleRate, samplesPerBlock);
 
     juce::MidiBuffer buffer;
-    for(int i = 0; i < 190; i++){
+    for(int i = 0; i < initBufferSize; i++){
         buffer.clear();
         sineGenerator.fillBuffer(buffer);
         ringBuffer.calculateValues(buffer);
     }
 
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.01));
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.1));
 }

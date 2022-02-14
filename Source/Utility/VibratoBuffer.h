@@ -12,12 +12,12 @@ namespace Utility {
     public:
 
         explicit AverageRingBuffer(int initialBufferSize) {
-            initialBufferSize = std::clamp(initialBufferSize, 1, 256);
+            initialBufferSize = std::clamp(initialBufferSize, 128, maxNumBuffers);
             buffer = std::vector<int>(initialBufferSize, 0);
         }
 
         void reset(int newBufferSize) {
-            newBufferSize = std::clamp(newBufferSize, 1, 256);
+            newBufferSize = std::clamp(newBufferSize, 128, maxNumBuffers);
             buffer = std::vector<int>(newBufferSize, 0);
         }
 
@@ -37,6 +37,7 @@ namespace Utility {
     private:
         std::vector<int> buffer;
         int writeHead = 0;
+        int maxNumBuffers = 2048; //The maximum number of buffers to hold. It takes 187,5 buffers to detect a 1Hz frequency at 48 KHz
     };
 
     class VibratoBuffer {
@@ -67,13 +68,13 @@ namespace Utility {
             return getAvgNumCrossings()/2 * (float)(sampleRate/samplesPerBlock);
         }
 
-    private:
-
         /// Gets the average number of crossings per buffer, based upon all the buffers stored. Remember that num crossings is double the Hz!
         /// \return The average rate of all the buffers stored
         float getAvgNumCrossings() {
             return rateBuffer.getAverage();
         }
+
+    private:
         static int calculateRmsOfSingleBuffer(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
