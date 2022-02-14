@@ -4,14 +4,17 @@
 
 #include "../Source/Utility/MidiRingBuffer.h"
 
-TEST_CASE("Test parsing of single buffer"){
-    Utility::MidiRingBuffer ringBuffer(256, 256*3);
+TEST_CASE("Test sum and average") {
+    int numSamplesToHold = GENERATE(16, 32, 64);
+    int samplesPerBuffer = 16;
+
+    Utility::MidiRingBuffer ringBuffer(16, numSamplesToHold);
     juce::MidiBuffer midiBuffer;
 
-    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 16), 4);
-    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 18), 7);
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 0), 0);
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 127), samplesPerBuffer/2);
     ringBuffer.push(midiBuffer);
-    midiBuffer.clear();
-    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 12), 10);
-    ringBuffer.push(midiBuffer);
+    auto expectedSum = (0 * 8 + 127 * 8);
+    REQUIRE(ringBuffer.getSum() == expectedSum);
+    REQUIRE(ringBuffer.getAverage() == (float) expectedSum / (float) numSamplesToHold);
 }
