@@ -28,7 +28,7 @@ TEST_CASE("Test Rate", "[processors]"){
     int inputController = 2;
 
     double sampleRate = GENERATE((double)44100, (double) 48000 );
-    int samplesPerBlock = GENERATE(64, 128, 256, 512, 1024);
+    int samplesPerBlock = GENERATE(256, 512, 1024);
     int numBuffersToFill = GENERATE(256, 477, 300, 411);
     float frequency = GENERATE(1.5f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f);
 
