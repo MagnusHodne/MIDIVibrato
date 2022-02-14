@@ -23,7 +23,7 @@ TEST_CASE("Test sum and average") {
 TEST_CASE("Test sine wave") {
     double sampleRate = 48000;
     int blockSize = 256;
-    float frequency = 4.f;
+    float frequency = GENERATE(2.f, 2.5f, 3.f, 3.5f);
 
     //Effectively the number of samples in a period of the given freq
     auto minimumWindowSize = static_cast<int>(sampleRate/frequency);
@@ -36,9 +36,10 @@ TEST_CASE("Test sine wave") {
     ringBuffer.setSmoothingRampLength(0.5);
 
     //We need at least 0.5 seconds of data to get our smoothed values in roughly the right place
-    auto numSamplesToGenerate = 48000 * 1;
+    float numSecondsToGenerate = GENERATE(0.5f, 1.f, 2.f);
+    auto numSamplesToGenerate = 48000 * numSecondsToGenerate;
 
-    auto numBuffersToGenerate = static_cast<int>(numSamplesToGenerate/blockSize);
+    auto numBuffersToGenerate = static_cast<int>((int)numSamplesToGenerate/blockSize);
     for(int i = 0; i < numBuffersToGenerate; i++){
         sineGenerator.fillBuffer(midiBuffer);
         ringBuffer.push(midiBuffer);
@@ -46,7 +47,7 @@ TEST_CASE("Test sine wave") {
     }
 
     SECTION("Test average and RMS") {
-        CHECK(ringBuffer.getRMS() == Catch::Approx(63).margin(0));
+        CHECK(ringBuffer.getRMS() == Catch::Approx(35).margin(4));
     }
 
     SECTION("Test rate"){
