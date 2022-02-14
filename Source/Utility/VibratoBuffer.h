@@ -34,6 +34,18 @@ namespace Utility {
             return sum / static_cast<float>(buffer.size());
         }
 
+        int getSum(){
+            int sum = 0;
+            for(auto val : buffer){
+                sum += val;
+            }
+            return sum;
+        }
+
+        int getSize(){
+            return buffer.capacity();
+        }
+
     private:
         std::vector<int> buffer;
         int writeHead = 0;
@@ -64,14 +76,10 @@ namespace Utility {
         }
 
         float getRate(double sampleRate, int samplesPerBlock){
-            //Since a wave crosses zero twice per period, we have to divide by two to get the correct number
-            return getAvgNumCrossings()/2 * (float)(sampleRate/samplesPerBlock);
-        }
-
-        /// Gets the average number of crossings per buffer, based upon all the buffers stored. Remember that num crossings is double the Hz!
-        /// \return The average rate of all the buffers stored
-        float getAvgNumCrossings() {
-            return rateBuffer.getAverage();
+            float secondsRecorded = (float)samplesPerBlock * (float)rateBuffer.getSize()/ (float)sampleRate;
+            float numCycles = (float)rateBuffer.getSum()/2;
+            float frequency = numCycles/secondsRecorded;
+            return frequency;
         }
 
     private:
@@ -91,20 +99,19 @@ namespace Utility {
         static int calculateNumCrossings(const MidiBuffer &buffer) {
             if (buffer.isEmpty()) return 0;
 
-            int sum = 0;
-            int prev = -1;
+            int numEvents = buffer.getNumEvents();
+            int numCrossings = 0;
+            auto it = buffer.begin();
 
-            for (auto metadata: buffer) {
-                const auto value = metadata.getMessage().getControllerValue();
-                if(prev == -1) prev = value;
-                if(prev != value) {
-                    if(prev < halfMidi && value >= halfMidi) sum++;
-                    if(prev > halfMidi && value <= halfMidi) sum++;
+            for(int i = 0; i < numEvents -1; i++){
+                auto current = it.operator*().getMessage().getControllerValue();
+                auto next = it.operator++().operator*().getMessage().getControllerValue();
+                if(current > halfMidi && next <= halfMidi || current < halfMidi && next >= halfMidi){
+                    numCrossings++;
                 }
-                prev = value;
             }
 
-            return sum;
+            return numCrossings;
         }
 
         AverageRingBuffer rmsBuffer;

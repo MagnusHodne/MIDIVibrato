@@ -25,15 +25,14 @@ TEST_CASE("TestRMS", "[processors]")
 }
 
 TEST_CASE("Test Rate", "[processors]"){
-    int initBufferSize = 256;
-    Utility::VibratoBuffer ringBuffer(initBufferSize);
     int inputController = 2;
 
     double sampleRate = GENERATE((double)44100, (double) 48000 );
-    int samplesPerBlock = GENERATE(256, 512, 1024);
+    int samplesPerBlock = GENERATE(64, 128, 256, 512, 1024);
     int numBuffersToFill = GENERATE(256, 477, 300, 411);
     float frequency = GENERATE(1.5f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f);
 
+    Utility::VibratoBuffer ringBuffer(numBuffersToFill);
     Utility::MidiSineGenerator sineGenerator(inputController, frequency, sampleRate, samplesPerBlock);
 
     juce::MidiBuffer buffer;
@@ -43,5 +42,25 @@ TEST_CASE("Test Rate", "[processors]"){
         ringBuffer.calculateValues(buffer);
     }
 
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.2));
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+
+    buffer.clear();
+    sineGenerator.fillBuffer(buffer);
+    ringBuffer.calculateValues(buffer);
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+
+    buffer.clear();
+    sineGenerator.fillBuffer(buffer);
+    ringBuffer.calculateValues(buffer);
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+
+    buffer.clear();
+    sineGenerator.fillBuffer(buffer);
+    ringBuffer.calculateValues(buffer);
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+
+    buffer.clear();
+    sineGenerator.fillBuffer(buffer);
+    ringBuffer.calculateValues(buffer);
+    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 }
