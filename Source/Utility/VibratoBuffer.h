@@ -20,28 +20,25 @@ namespace Utility {
         void reset(int newBufferSize) {
             newBufferSize = std::clamp(newBufferSize, 128, maxNumBuffers);
             buffer = std::vector<int>(newBufferSize, 0);
-            insertedBuffers = 0;
         }
 
         void push(int averageVal) {
-            //Optimization for calculating the total sum
-            if(insertedBuffers != capacity) {
-                insertedBuffers++;
-                sum += averageVal;
-            } else {
-                auto oldestVal = buffer[writeHead == buffer.size() -1 ? 0 : writeHead+1];
-                sum -= oldestVal;
-                sum += averageVal;
-            }
+            //This will always give us a valid index, and will wrap around (giving us a circular buffer)
+            auto nextIndex = (writeHead == buffer.size() - 1) ? 0 : writeHead +1;
+
+            //Updating the sum.
+            sum -= buffer[nextIndex]; //The element just after the write head is always going to be the oldest element
+            sum += averageVal;
+
             buffer[writeHead] = averageVal;
-            writeHead = (writeHead == buffer.size() - 1) ? 0 : writeHead + 1; //This is how we get a ring buffer...
+            writeHead = nextIndex;
         }
 
         float getAverage() {
             return (float) sum / static_cast<float>(buffer.size());
         }
 
-        int getSum(){
+        [[nodiscard]] int getSum() const {
             return sum;
         }
 
@@ -54,7 +51,6 @@ namespace Utility {
         int sum = 0;
         int capacity;
         int writeHead = 0;
-        int insertedBuffers = 0;
         int maxNumBuffers = 2048; //The maximum number of buffers to hold. It takes 187,5 buffers to detect a 1Hz frequency at 48 KHz
     };
 
@@ -81,10 +77,10 @@ namespace Utility {
             return static_cast<int>(rmsBuffer.getAverage());
         }
 
-        float getRate(double sampleRate, int samplesPerBlock){
-            float secondsRecorded = (float)samplesPerBlock * (float)rateBuffer.getSize()/ (float)sampleRate;
-            float numCycles = (float)rateBuffer.getSum()/2;
-            float frequency = numCycles/secondsRecorded;
+        float getRate(double sampleRate, int samplesPerBlock) {
+            float secondsRecorded = (float) samplesPerBlock * (float) rateBuffer.getSize() / (float) sampleRate;
+            float numCycles = (float) rateBuffer.getSum() / 2;
+            float frequency = numCycles / secondsRecorded;
             return frequency;
         }
 
@@ -109,10 +105,10 @@ namespace Utility {
             int numCrossings = 0;
             auto it = buffer.begin();
 
-            for(int i = 0; i < numEvents -1; i++){
+            for (int i = 0; i < numEvents - 1; i++) {
                 auto current = it.operator*().getMessage().getControllerValue();
                 auto next = it.operator++().operator*().getMessage().getControllerValue();
-                if(current > halfMidi && next <= halfMidi || current < halfMidi && next >= halfMidi){
+                if (current > halfMidi && next <= halfMidi || current < halfMidi && next >= halfMidi) {
                     numCrossings++;
                 }
             }
