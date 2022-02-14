@@ -37,6 +37,7 @@ void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, floa
     }
     if (parameterID.equalsIgnoreCase("numBuf")) {
         numBuffers = static_cast<int>(newValue);
+        detector.resetValues(numBuffers, multiplier);
     }
     if (parameterID.equalsIgnoreCase("inputCC")) {
         detector.setInputController(static_cast<int>(newValue));
@@ -53,9 +54,10 @@ void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, floa
 void MidiPluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     // Use this method as the place to do any pre-playback
     // initialisation that you need...
-    juce::ignoreUnused(samplesPerBlock);
-    detector.resetValues(numBuffers, multiplier);
+
+    //Note that this is called whenever the user changes device settings, but not before they press play!
     detector.setMetadata(sampleRate, samplesPerBlock);
+    detector.resetValues(numBuffers, multiplier);
 }
 
 void MidiPluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
