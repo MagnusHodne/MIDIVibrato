@@ -18,6 +18,7 @@ namespace Utility {
         }
 
         void reset(int newBufferSize) {
+            writeHead = 0;
             newBufferSize = std::clamp(newBufferSize, 128, maxNumBuffers);
             buffer = std::vector<int>(newBufferSize, 0);
         }
