@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "6.45/win64" 1644764526
+<REAPER_PROJECT 0.1 "6.45/win64" 1644801330
   RIPPLE 0
   GROUPOVERRIDE 0 1 1
   AUTOXFADE 1
@@ -118,6 +118,13 @@
       SHOW 0
       LASTSEL 0
       DOCKED 0
+      BYPASS 0 0 0
+      <JS IX/MIDI_CCRider ""
+        0 2 63 127 0 0 2.5 0 8 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+      >
+      FLOAT 833 1078 756 455
+      FXID {DEF2E9F2-48BF-46C0-874B-D5B5F984E377}
+      WAK 0 0
       BYPASS 0 0 0
       <VST "VST3: MIDI Vibrato (MagnusHodne)" "MIDI Vibrato.vst3" 0 "" 1515170733{ABCDEF019182FAEB4D61486F4D695669} ""
         ratPWu5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAIAAAABAAAAAAAAAAIAAAAAAAAATAAAAAEAAAD//xAA
