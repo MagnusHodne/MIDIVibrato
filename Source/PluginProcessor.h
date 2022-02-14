@@ -59,15 +59,15 @@ public:
         return detector.getAmplitude();
     }
 
-    int getRate() const {
+    int getRate() {
         return detector.getRate();
     }
 
 private:
-    int numBuffers = 5;
-    VibratoDetector detector;
-
     juce::AudioProcessorValueTreeState parameters;
+    int numBuffers;
+
+    VibratoDetector detector;
     float multiplier = 2.f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)

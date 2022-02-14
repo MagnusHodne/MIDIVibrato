@@ -8,13 +8,13 @@ MidiPluginProcessor::MidiPluginProcessor()
         : AudioProcessor(BusesProperties()
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-), detector(numBuffers), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
-        std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 2048, 256),
+), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
+        std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 2048, 512),
         std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
         std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20),
         std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 30.f, 1.f)
-}) {
+}), numBuffers(parameters.getParameterAsValue("numBuf").getValue()), detector(numBuffers) {
     parameters.addParameterListener("numBuf", this);
     parameters.addParameterListener("ampScaling", this);
     parameters.addParameterListener("inputCC", this);
