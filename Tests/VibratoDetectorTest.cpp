@@ -51,8 +51,6 @@ TEST_CASE("Test rate slider value", "[processors]"){
         detector.processMidi(buffer, samplesPerBlock);
     }
 
-    auto clampedFrequency = std::clamp(frequency, minRate, maxRate);
-
     auto frequencyAsMidiValue = juce::jmap(std::clamp(frequency, minRate, maxRate), minRate, maxRate, 0.f, 127.f);
     auto midiRateValue = detector.getRate();
 

@@ -42,25 +42,25 @@ TEST_CASE("Test Rate", "[processors]"){
         ringBuffer.calculateValues(buffer);
     }
 
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+    CHECK(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 
     buffer.clear();
     sineGenerator.fillBuffer(buffer);
     ringBuffer.calculateValues(buffer);
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+    CHECK(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 
     buffer.clear();
     sineGenerator.fillBuffer(buffer);
     ringBuffer.calculateValues(buffer);
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+    CHECK(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 
     buffer.clear();
     sineGenerator.fillBuffer(buffer);
     ringBuffer.calculateValues(buffer);
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+    CHECK(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 
     buffer.clear();
     sineGenerator.fillBuffer(buffer);
     ringBuffer.calculateValues(buffer);
-    REQUIRE(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
+    CHECK(ringBuffer.getRate(sampleRate, samplesPerBlock) == Catch::Approx(frequency).margin(0.35));
 }
