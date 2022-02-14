@@ -8,8 +8,10 @@
 namespace Utility {
     class MidiRingBuffer {
     public:
-        explicit MidiRingBuffer(int samplesPerBuffer, int numSamplesToHold) : data(numSamplesToHold),
-                                                                              samplesPerBlock(samplesPerBuffer) {}
+        explicit MidiRingBuffer(int blockSize, int numSamplesToHold, double sampleRate)
+                : data(numSamplesToHold),
+                  spb(blockSize),
+                  sr(sampleRate){}
 
         void push(juce::MidiBuffer &buffer) {
 
@@ -32,8 +34,8 @@ namespace Utility {
                 prevTime = time;
             }
             //Make sure we write the remaining values in the buffer
-            if (prevTime < samplesPerBlock) {
-                write(samplesPerBlock - prevTime);
+            if (prevTime < spb) {
+                write(spb - prevTime);
             }
         }
 
@@ -43,6 +45,14 @@ namespace Utility {
 
         float getAverage() {
             return (float) sum / (float) data.size();
+        }
+
+        float getFrequency() {
+            float numSecondsInBuffer = (float) data.size() / (float) sr;
+            float numCycles = (float) numCrossings / 2;
+
+
+            return 0.f;
         }
 
     private:
@@ -76,10 +86,13 @@ namespace Utility {
             }
         }
 
-        std::vector<juce::uint16> data; //Holds MIDI msg value
+        std::vector<juce::uint8> data; //Holds MIDI msg value
         int writeHead = 0;
-        juce::uint16 value = 0;
-        int samplesPerBlock;
+        juce::uint8 value = 0;
+        int spb; //Block size
+        double sr; //Sample rate
         int sum = 0;
+
+        int numCrossings = 0;
     };
 }

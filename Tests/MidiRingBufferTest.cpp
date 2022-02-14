@@ -9,7 +9,7 @@ TEST_CASE("Test sum and average") {
     int numSamplesToHold = GENERATE(16, 32, 64);
     int samplesPerBuffer = 16;
 
-    Utility::MidiRingBuffer ringBuffer(16, numSamplesToHold);
+    Utility::MidiRingBuffer ringBuffer(16, numSamplesToHold, 48000);
     juce::MidiBuffer midiBuffer;
 
     midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 0), 0);
@@ -30,7 +30,7 @@ TEST_CASE("Test sine wave") {
     int controllerType = 1;
 
     Utility::MidiSineGenerator sineGenerator(controllerType, frequency, sampleRate, blockSize);
-    Utility::MidiRingBuffer ringBuffer(blockSize, minimumWindowSize);
+    Utility::MidiRingBuffer ringBuffer(blockSize, minimumWindowSize, sampleRate);
 
     juce::MidiBuffer midiBuffer;
 
@@ -46,7 +46,7 @@ TEST_CASE("Test sine wave") {
     }
 
     SECTION("Test rate"){
-        CHECK(ringBuffer.getRate() == Catch::Approx(frequency).margin(0.2));
+        CHECK(ringBuffer.getFrequency() == Catch::Approx(frequency).margin(0.2));
     }
 
 }
