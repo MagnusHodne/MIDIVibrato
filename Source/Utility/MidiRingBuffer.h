@@ -9,11 +9,16 @@ namespace Utility {
     class MidiRingBuffer {
     public:
         explicit MidiRingBuffer(int blockSize, int numSamplesToHold, double sampleRate)
-                : data(numSamplesToHold),
+                : data(numSamplesToHold, halfMidi),
                   spb(blockSize),
-                  sr(sampleRate){}
+                  sr(sampleRate)
+        {
+            reset(sampleRate, blockSize);
+        }
 
         void push(juce::MidiBuffer &buffer) {
+            amplitude.skip(spb);
+            frequency.skip(spb);
 
             //Write whatever the previous value was, up until the next point in the buffer (or the buffer end)
 
@@ -55,12 +60,41 @@ namespace Utility {
             return frequency;
         }
 
+        float getRMS() {
+            auto startPos = writeHead;
+            rmsSum = 0.f;
+
+            for(size_t i = 0; i < data.size(); i++){
+                auto val = data[writeHead];
+                rmsSum += std::powf(static_cast<float>(value-halfMidi), 2.0);
+                moveWritePos(1);
+            }
+            jassert(startPos == writeHead);
+            return std::sqrt(rmsSum / static_cast<float>(data.size()));
+        }
+
+        void setSmoothingRampLength(double newLength){
+            rampLengthInSeconds = newLength;
+        }
+
+        void reset(double sampleRate, int blockSize){
+            sr = sampleRate;
+            spb = blockSize;
+            amplitude.reset(sampleRate, rampLengthInSeconds);
+            amplitude.setCurrentAndTargetValue(0.f);
+            frequency.reset(sampleRate, rampLengthInSeconds);
+            frequency.setCurrentAndTargetValue(0.f);
+        }
+
     private:
         void write(int numSamplesToWrite) {
             if (numSamplesToWrite == 0) return;
             for (int i = 0; i < numSamplesToWrite; i++) {
                 sum -= data[writeHead]; //Subtract the "oldest" value (the one immediately after the write head)
                 sum += value;
+
+                //rmsSum -= std::powf(static_cast<float>(data[writeHead] - halfMidi), 2.0);
+                //rmsSum += std::powf(static_cast<float>(value - halfMidi), 2.0);
 
                 data[writeHead] = value;
                 moveWritePos(1);
@@ -93,6 +127,13 @@ namespace Utility {
         double sr; //Sample rate
         int sum = 0;
 
+        float rmsSum = 0.f;
         int numCrossings = 0;
+
+        double rampLengthInSeconds = 0.5;
+        juce::LinearSmoothedValue<float> amplitude, frequency;
+
+
+        static constexpr int halfMidi = 128 / 2 - 1; //= 63
     };
 }
