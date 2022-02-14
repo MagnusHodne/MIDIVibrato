@@ -30,11 +30,15 @@ TEST_CASE("Test sine wave") {
     int controllerType = 1;
 
     Utility::MidiSineGenerator sineGenerator(controllerType, frequency, sampleRate, blockSize);
-    Utility::MidiRingBuffer ringBuffer(blockSize, minimumWindowSize, sampleRate);
+    Utility::MidiRingBuffer ringBuffer(blockSize, minimumWindowSize*8, sampleRate);
 
     juce::MidiBuffer midiBuffer;
+    ringBuffer.setSmoothingRampLength(0.5);
 
-    auto numBuffersToGenerate = minimumWindowSize / blockSize + 5;
+    //We need at least 0.5 seconds of data to get our smoothed values in roughly the right place
+    auto numSamplesToGenerate = 48000 * 1;
+
+    auto numBuffersToGenerate = static_cast<int>(numSamplesToGenerate/blockSize);
     for(int i = 0; i < numBuffersToGenerate; i++){
         sineGenerator.fillBuffer(midiBuffer);
         ringBuffer.push(midiBuffer);
@@ -42,7 +46,7 @@ TEST_CASE("Test sine wave") {
     }
 
     SECTION("Test average and RMS") {
-        CHECK(ringBuffer.getAverage() == Catch::Approx(63).margin(0));
+        CHECK(ringBuffer.getRMS() == Catch::Approx(63).margin(0));
     }
 
     SECTION("Test rate"){
