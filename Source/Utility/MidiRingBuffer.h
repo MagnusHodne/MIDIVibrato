@@ -50,9 +50,9 @@ namespace Utility {
         float getFrequency() {
             float numSecondsInBuffer = (float) data.size() / (float) sr;
             float numCycles = (float) numCrossings / 2;
+            float frequency = numCycles/numSecondsInBuffer;
 
-
-            return 0.f;
+            return frequency;
         }
 
     private:
