@@ -13,42 +13,48 @@ namespace Utility {
 
         explicit AverageRingBuffer(int initialBufferSize) {
             initialBufferSize = std::clamp(initialBufferSize, 128, maxNumBuffers);
+            capacity = initialBufferSize;
             buffer = std::vector<int>(initialBufferSize, 0);
         }
 
         void reset(int newBufferSize) {
             newBufferSize = std::clamp(newBufferSize, 128, maxNumBuffers);
             buffer = std::vector<int>(newBufferSize, 0);
+            insertedBuffers = 0;
         }
 
         void push(int averageVal) {
+            //Optimization for calculating the total sum
+            if(insertedBuffers != capacity) {
+                insertedBuffers++;
+                sum += averageVal;
+            } else {
+                auto oldestVal = buffer[writeHead == buffer.size() -1 ? 0 : writeHead+1];
+                sum -= oldestVal;
+                sum += averageVal;
+            }
             buffer[writeHead] = averageVal;
             writeHead = (writeHead == buffer.size() - 1) ? 0 : writeHead + 1; //This is how we get a ring buffer...
         }
 
         float getAverage() {
-            float sum = 0.f;
-            for (auto val: buffer) {
-                sum += static_cast<float>(val);
-            }
-            return sum / static_cast<float>(buffer.size());
+            return (float) sum / static_cast<float>(buffer.size());
         }
 
         int getSum(){
-            int sum = 0;
-            for(auto val : buffer){
-                sum += val;
-            }
             return sum;
         }
 
-        int getSize(){
-            return buffer.capacity();
+        [[nodiscard]] int getSize() const {
+            return capacity;
         }
 
     private:
         std::vector<int> buffer;
+        int sum = 0;
+        int capacity;
         int writeHead = 0;
+        int insertedBuffers = 0;
         int maxNumBuffers = 2048; //The maximum number of buffers to hold. It takes 187,5 buffers to detect a 1Hz frequency at 48 KHz
     };
 
