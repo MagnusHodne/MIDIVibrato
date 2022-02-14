@@ -11,8 +11,7 @@ namespace Utility {
         explicit MidiRingBuffer(int blockSize, int numSamplesToHold, double sampleRate)
                 : data(numSamplesToHold, halfMidi),
                   spb(blockSize),
-                  sr(sampleRate)
-        {
+                  sr(sampleRate) {
             reset(sampleRate, blockSize);
         }
 
@@ -42,42 +41,26 @@ namespace Utility {
             if (prevTime < spb) {
                 write(spb - prevTime);
             }
-        }
-
-        int getSum() {
-            return sum;
-        }
-
-        float getAverage() {
-            return (float) sum / (float) data.size();
+            calculateRMS();
         }
 
         float getFrequency() {
-            float numSecondsInBuffer = (float) data.size() / (float) sr;
+            /*float numSecondsInBuffer = (float) data.size() / (float) sr;
             float numCycles = (float) numCrossings / 2;
-            float frequency = numCycles/numSecondsInBuffer;
-
-            return frequency;
+            float freq = numCycles/numSecondsInBuffer;
+            return freq;*/
+            return frequency.getCurrentValue();
         }
 
         float getRMS() {
-            auto startPos = writeHead;
-            rmsSum = 0.f;
-
-            for(size_t i = 0; i < data.size(); i++){
-                auto val = data[writeHead];
-                rmsSum += std::powf(static_cast<float>(value-halfMidi), 2.0);
-                moveWritePos(1);
-            }
-            jassert(startPos == writeHead);
-            return std::sqrt(rmsSum / static_cast<float>(data.size()));
+            return amplitude.getCurrentValue();
         }
 
-        void setSmoothingRampLength(double newLength){
+        void setSmoothingRampLength(double newLength) {
             rampLengthInSeconds = newLength;
         }
 
-        void reset(double sampleRate, int blockSize){
+        void reset(double sampleRate, int blockSize) {
             sr = sampleRate;
             spb = blockSize;
             amplitude.reset(sampleRate, rampLengthInSeconds);
@@ -90,8 +73,8 @@ namespace Utility {
         void write(int numSamplesToWrite) {
             if (numSamplesToWrite == 0) return;
             for (int i = 0; i < numSamplesToWrite; i++) {
-                sum -= data[writeHead]; //Subtract the "oldest" value (the one immediately after the write head)
-                sum += value;
+                //sum -= data[writeHead]; //Subtract the "oldest" value (the one immediately after the write head)
+                //sum += value;
 
                 //rmsSum -= std::powf(static_cast<float>(data[writeHead] - halfMidi), 2.0);
                 //rmsSum += std::powf(static_cast<float>(value - halfMidi), 2.0);
@@ -99,6 +82,37 @@ namespace Utility {
                 data[writeHead] = value;
                 moveWritePos(1);
             }
+        }
+
+        void calculateRMS() {
+            auto startPos = writeHead;
+            rmsSum = 0.f;
+
+            for (size_t i = 0; i < data.size(); i++) {
+                auto val = data[writeHead];
+                rmsSum += std::powf(static_cast<float>(val - halfMidi), 2.0);
+                moveWritePos(1);
+            }
+            jassert(startPos == writeHead);
+            auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
+            amplitude.setTargetValue(rms);
+        }
+
+        void calculateZeroCrossings() {
+            auto startPos = writeHead;
+            numCrossings = 0;
+
+            for (size_t i = 0; i < data.size(); i++) {
+                auto current = data[writeHead];
+                moveWritePos(1);
+                auto next = data[writeHead];
+                if (current > halfMidi && next <= halfMidi || current < halfMidi && next >= halfMidi) {
+                    numCrossings++;
+                }
+            }
+            float numSecondsRecorded = (float)data.size()/(float)sr;
+            float numCycles = numCrossings/2;
+            frequency.setTargetValue(numCycles/numSecondsRecorded);
         }
 
         void iterateOver() {
@@ -125,7 +139,6 @@ namespace Utility {
         juce::uint8 value = 0;
         int spb; //Block size
         double sr; //Sample rate
-        int sum = 0;
 
         float rmsSum = 0.f;
         int numCrossings = 0;

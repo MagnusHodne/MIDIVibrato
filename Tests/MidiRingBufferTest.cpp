@@ -5,38 +5,23 @@
 #include "../Source/Utility/MidiRingBuffer.h"
 #include "../Source/Utility/MidiSineGenerator.h"
 
-TEST_CASE("Test sum and average") {
-    int numSamplesToHold = GENERATE(16, 32, 64);
-    int samplesPerBuffer = 16;
-
-    Utility::MidiRingBuffer ringBuffer(16, numSamplesToHold, 48000);
-    juce::MidiBuffer midiBuffer;
-
-    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 0), 0);
-    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 127), samplesPerBuffer/2);
-    ringBuffer.push(midiBuffer);
-    auto expectedSum = (0 * 8 + 127 * 8);
-    CHECK(ringBuffer.getSum() == expectedSum);
-    CHECK(ringBuffer.getAverage() == (float) expectedSum / (float) numSamplesToHold);
-}
-
 TEST_CASE("Test sine wave") {
     double sampleRate = 48000;
     int blockSize = 256;
     float frequency = GENERATE(2.f, 2.5f, 3.f, 3.5f);
 
-    //Effectively the number of samples in a period of the given freq
-    auto minimumWindowSize = static_cast<int>(sampleRate/frequency);
+    //This is the min window size if we want to detect frequencies down to 1Hz
+    auto minimumWindowSize = static_cast<int>(sampleRate/1.f);
     int controllerType = 1;
 
     Utility::MidiSineGenerator sineGenerator(controllerType, frequency, sampleRate, blockSize);
     Utility::MidiRingBuffer ringBuffer(blockSize, minimumWindowSize*8, sampleRate);
 
     juce::MidiBuffer midiBuffer;
-    ringBuffer.setSmoothingRampLength(0.5);
+    ringBuffer.setSmoothingRampLength(1.5);
 
     //We need at least 0.5 seconds of data to get our smoothed values in roughly the right place
-    float numSecondsToGenerate = GENERATE(0.5f, 1.f, 2.f);
+    float numSecondsToGenerate = GENERATE(1.5f, 2.f);
     auto numSamplesToGenerate = 48000 * numSecondsToGenerate;
 
     auto numBuffersToGenerate = static_cast<int>((int)numSamplesToGenerate/blockSize);
