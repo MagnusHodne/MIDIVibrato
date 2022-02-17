@@ -7,8 +7,8 @@
 namespace Utility {
     class MidiRingBuffer {
     public:
-        explicit MidiRingBuffer(int blockSize, int numSamplesToHold, double sampleRate)
-                : data(numSamplesToHold, halfMidi),
+        explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize)
+                : data((int)(sampleRate * numSecondsToHold), 0),
                   spb(blockSize),
                   sr(sampleRate) {
             reset(sampleRate, blockSize);
@@ -33,22 +33,15 @@ namespace Utility {
                  * want to write whatever the previous value was up until the current sample position first
                  */
                 write(time - prevTime);
-                value = metadata.getMessage().getControllerValue();
+                value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64); //Map so that MIDI 63 = 0;
                 prevTime = time;
             }
             //Make sure we write the remaining values in the buffer
             if (prevTime < spb) {
                 write(spb - prevTime);
             }
-            calculateRMS();
-        }
-
-        int getFrequency() {
-            return std::clamp(static_cast<int>(frequency.getCurrentValue()), 0, 127);
-        }
-
-        int getRms() {
-            return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
+            auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
+            amplitude.setTargetValue(rms);
         }
 
         float getRawFrequency() {
@@ -60,11 +53,18 @@ namespace Utility {
         }
 
         float getRawRms() {
+            //The max rms of a sine wave with
             return amplitude.getCurrentValue();
+        }
+
+        int getRms() {
+            return static_cast<int>(juce::jmap(getRawRms(), 0.f, 64.f * 0.707f, 0.f, 127.f));
         }
 
         void setSmoothingRampLength(double newLength) {
             rampLengthInSeconds = newLength;
+            amplitude.reset(sr, rampLengthInSeconds);
+            frequency.reset(sr, rampLengthInSeconds);
         }
 
         void reset(double sampleRate, int blockSize) {
@@ -83,51 +83,34 @@ namespace Utility {
                 //sum -= data[writeHead]; //Subtract the "oldest" value (the one immediately after the write head)
                 //sum += value;
 
-                //rmsSum -= std::powf(static_cast<float>(data[writeHead] - halfMidi), 2.0);
-                //rmsSum += std::powf(static_cast<float>(value - halfMidi), 2.0);
+                auto oldestValue = data[writeHead];
+                rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
+                rmsSum += std::powf(static_cast<float>(value), 2.0);
 
                 data[writeHead] = value;
                 moveWritePos(1);
             }
         }
 
-        void calculateRMS() {
-            auto startPos = writeHead;
-            rmsSum = 0.f;
-
-            for (size_t i = 0; i < data.size(); i++) {
-                auto val = data[writeHead];
-                rmsSum += std::powf(static_cast<float>(val - halfMidi), 2.0);
-                moveWritePos(1);
-            }
-            jassert(startPos == writeHead);
-            auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
-            amplitude.setTargetValue(rms);
-        }
-
-        void calculateZeroCrossings() {
+        void calculate() {
             auto startPos = writeHead;
             numCrossings = 0;
 
-            for (size_t i = 0; i < data.size(); i++) {
+            for(size_t i = 0; i < data.size(); i++){
                 auto current = data[writeHead];
+
                 moveWritePos(1);
                 auto next = data[writeHead];
-                if (current > halfMidi && next <= halfMidi || current < halfMidi && next >= halfMidi) {
+
+                if (current > 0 && next <= 0 || current < 0 && next >= 0) {
                     numCrossings++;
                 }
             }
             float numSecondsRecorded = (float)data.size()/(float)sr;
             float numCycles = numCrossings/2;
             frequency.setTargetValue(numCycles/numSecondsRecorded);
-        }
 
-        void iterateOver() {
-            auto startPos = writeHead;
-            for (int i = 0; i < data.size(); i++) {
-                moveWritePos(1);
-            }
-            jassert(startPos == writeHead); //If this is false, it means we haven't cycled through the buffer correctly!
+            jassert(startPos == writeHead);
         }
 
         //Method for arbitrarily moving the writeHead any number of positions
@@ -141,9 +124,9 @@ namespace Utility {
             }
         }
 
-        std::vector<juce::uint8> data; //Holds MIDI msg value
+        std::vector<int> data; //Holds MIDI msg value
         int writeHead = 0;
-        juce::uint8 value = 0;
+        int value = 0;
         int spb; //Block size
         double sr; //Sample rate
 
@@ -152,7 +135,5 @@ namespace Utility {
 
         double rampLengthInSeconds = 0.5;
         juce::LinearSmoothedValue<float> amplitude, frequency;
-
-        static constexpr int halfMidi = 128 / 2 - 1; //= 63
     };
 }
