@@ -8,7 +8,7 @@
 TEST_CASE("Test sine wave") {
     double sampleRate = 48000;
     int blockSize = 256;
-    float frequency = GENERATE(1.f, 2.f, 2.5f, 3.f, 3.5f);
+    float frequency = GENERATE(take(100, random(1.f, 4.5f)));
 
     //This is the min window size if we want to detect frequencies down to 1Hz
     auto minimumWindowSize = static_cast<int>(sampleRate/1.f);
@@ -34,7 +34,7 @@ TEST_CASE("Test sine wave") {
         //RMS of a sine wave should be 0.707 times the peak level of the signal
         //Therefore, we expect the RMS of this signal to be 0.707x64
         CHECK(ringBuffer.getRawRms() == Catch::Approx(64.f * 0.707f).margin(3.f));
-        CHECK(ringBuffer.getRms() == Catch::Approx(127).margin(6));
+        CHECK(ringBuffer.getRms() == Catch::Approx(127).margin(8));
     }
 
     SECTION("Test rate"){
