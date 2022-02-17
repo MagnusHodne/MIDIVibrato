@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tuple>
+#include <deque>
 #include "juce_core/juce_core.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 
@@ -9,6 +9,7 @@ namespace Utility {
     public:
         explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize)
                 : data((int)(sampleRate * numSecondsToHold), 0),
+                  crossingPositions(0),
                   spb(blockSize),
                   sr(sampleRate) {
             reset(sampleRate, blockSize);
@@ -18,39 +19,37 @@ namespace Utility {
             amplitude.skip(spb);
             frequency.skip(spb);
 
-            //Write whatever the previous value was, up until the next point in the buffer (or the buffer end)
-
-            //First, write whatever the previous value was, up until the first sample in the buffer
-            //Then, write until the next sample in the buffer
-            //Finally, write until the end of the buffer
-            int prevTime = 0;
+            int currentSamplePos = 0;
 
             for (auto metadata: buffer) {
                 auto time = metadata.samplePosition;
 
-                /*
-                 * It might seem counter-intuitive to write the value before we update it, but the reasoning is that we
-                 * want to write whatever the previous value was up until the current sample position first
-                 */
-                write(time - prevTime);
-
+                //First we write whatever the previous value was, up until the value should actually change
+                write(time - currentSamplePos);
+                auto currentValue = data[writeHead];
                 //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
                 value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
-                prevTime = time;
+
+                if (currentValue > 0 && value <= 0 || currentValue < 0 && value >= 0) {
+                    crossingPositions.emplace_back(writeHead);
+                }
+                currentSamplePos = time;
             }
             //Make sure we write the remaining values in the buffer
-            if (prevTime < spb) {
-                write(spb - prevTime);
+            if (currentSamplePos < spb) {
+                write(spb - currentSamplePos);
             }
+
             auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
             amplitude.setTargetValue(rms);
+
+            float numSecondsInBuffer = (float) data.size() / (float) sr;
+            float numCycles = (float) crossingPositions.size() / 2;
+            float freq = numCycles/numSecondsInBuffer;
+            frequency.setTargetValue(freq);
         }
 
         float getRawFrequency() {
-            /*float numSecondsInBuffer = (float) data.size() / (float) sr;
-            float numCycles = (float) numCrossings / 2;
-            float freq = numCycles/numSecondsInBuffer;
-            return freq;*/
             return frequency.getCurrentValue();
         }
 
@@ -90,29 +89,11 @@ namespace Utility {
                 }
 
                 data[writeHead] = value;
-                moveWritePos(1);
-            }
-        }
-
-        void calculate() {
-            auto startPos = writeHead;
-            numCrossings = 0;
-
-            for(size_t i = 0; i < data.size(); i++){
-                auto current = data[writeHead];
-
-                moveWritePos(1);
-                auto next = data[writeHead];
-
-                if (current > 0 && next <= 0 || current < 0 && next >= 0) {
-                    numCrossings++;
+                if(!crossingPositions.empty() && crossingPositions.front() == writeHead){
+                    crossingPositions.pop_front();
                 }
+                moveWritePos(1);
             }
-            float numSecondsRecorded = (float)data.size()/(float)sr;
-            float numCycles = numCrossings/2;
-            frequency.setTargetValue(numCycles/numSecondsRecorded);
-
-            jassert(startPos == writeHead);
         }
 
         //Method for arbitrarily moving the writeHead any number of positions
@@ -127,13 +108,13 @@ namespace Utility {
         }
 
         std::vector<int> data; //Holds MIDI msg value
+        std::deque<int> crossingPositions; //TODO - implement a lock-free FIFO instead
         int writeHead = 0;
         int value = 0;
         int spb; //Block size
         double sr; //Sample rate
 
         float rmsSum = 0.f;
-        int numCrossings = 0;
 
         double rampLengthInSeconds = 0.5;
         juce::LinearSmoothedValue<float> amplitude, frequency;
