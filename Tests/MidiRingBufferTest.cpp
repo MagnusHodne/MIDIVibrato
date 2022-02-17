@@ -20,7 +20,8 @@ TEST_CASE("Test sine wave") {
     juce::MidiBuffer midiBuffer;
     ringBuffer.setSmoothingRampLength(0.5);
 
-    auto numSamplesToGenerate = 48000 * 2;
+    auto numSecondsToGenerate = GENERATE(2.f, 2.5f, 3.f, 3.25f, 3.33f);
+    auto numSamplesToGenerate = 48000 * numSecondsToGenerate;
 
     auto numBuffersToGenerate = static_cast<int>((int)numSamplesToGenerate/blockSize);
     for(int i = 0; i < numBuffersToGenerate; i++){
