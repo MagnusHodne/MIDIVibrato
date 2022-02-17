@@ -33,7 +33,9 @@ namespace Utility {
                  * want to write whatever the previous value was up until the current sample position first
                  */
                 write(time - prevTime);
-                value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64); //Map so that MIDI 63 = 0;
+
+                //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
+                value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
                 prevTime = time;
             }
             //Make sure we write the remaining values in the buffer
@@ -53,11 +55,11 @@ namespace Utility {
         }
 
         float getRawRms() {
-            //The max rms of a sine wave with
             return amplitude.getCurrentValue();
         }
 
         int getRms() {
+            //A sine wave should have an RMS of 0.707 times the max value (which in our case is 64 * 0.707);
             return static_cast<int>(juce::jmap(getRawRms(), 0.f, 64.f * 0.707f, 0.f, 127.f));
         }
 
@@ -80,12 +82,12 @@ namespace Utility {
         void write(int numSamplesToWrite) {
             if (numSamplesToWrite == 0) return;
             for (int i = 0; i < numSamplesToWrite; i++) {
-                //sum -= data[writeHead]; //Subtract the "oldest" value (the one immediately after the write head)
-                //sum += value;
-
                 auto oldestValue = data[writeHead];
-                rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
-                rmsSum += std::powf(static_cast<float>(value), 2.0);
+                {
+                    //Calculate RMS
+                    rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
+                    rmsSum += std::powf(static_cast<float>(value), 2.0);
+                }
 
                 data[writeHead] = value;
                 moveWritePos(1);
