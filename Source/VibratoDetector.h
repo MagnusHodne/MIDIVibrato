@@ -3,8 +3,9 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/juce_core.h"
 #include "Utility/VibratoBuffer.h"
+#include "Detector.h"
 
-class VibratoDetector {
+class VibratoDetector : public Detector {
 public:
     ///
     /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
@@ -12,7 +13,9 @@ public:
             : vibratoBuffer(initialBufferSize) {
     }
 
-    void processMidi(juce::MidiBuffer &midiMessages, int numSamples) {
+    ~VibratoDetector(){}
+
+    void processMidi(juce::MidiBuffer &midiMessages, int numSamples) override {
         amplitude.skip(numSamples);
         rate.skip(numSamples);
         juce::MidiBuffer passthrough;
@@ -35,22 +38,22 @@ public:
         rate.setTargetValue(vibratoBuffer.getRate(sr, spb));
 
         passthrough.addEvent(
-                juce::MidiMessage::controllerEvent(1, ampController, getAmplitude()),
+                juce::MidiMessage::controllerEvent(1, ampController, getRms()),
                 1);
 
         passthrough.addEvent(
-                juce::MidiMessage::controllerEvent(1, rateController, getRate()),
+                juce::MidiMessage::controllerEvent(1, rateController, getFrequency()),
                 2);
 
         midiMessages.swapWith(passthrough);
     }
 
-    [[nodiscard]] int getAmplitude() const {
+    [[nodiscard]] int getRms() const override {
         return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
     }
 
     //Should return rate mapped to the correct values...
-    [[nodiscard]] int getRate() const {
+    [[nodiscard]] int getFrequency() const override {
         auto rawRate = std::clamp(rate.getCurrentValue(), minRate, maxRate);
         return static_cast<int>(juce::jmap(rawRate, minRate, maxRate, 0.f, 127.f));
     }
@@ -59,43 +62,40 @@ public:
         return rate.getTargetValue();
     }
 
-    void setInputController(int newCC) {
+    void setInputController(int newCC) override {
         inputController = clampCCs(newCC);
     }
 
-    void setAmpController(int newCC) {
+    void setRmsController(int newCC) override {
         ampController = clampCCs(newCC);
     }
 
-    void setRateController(int newCC) {
+    void setFrequencyController(int newCC) override {
         rateController = clampCCs(newCC);
     }
 
     static int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
 
-    void resetValues(int numBuffers, float newScaling) {
+    void resetValues(double sampleRate, int blockSize) override {
+        sr = sampleRate;
+        spb = blockSize;
         amplitude.reset(sr, rampLengthInSeconds);
         rate.reset(sr, rampLengthInSeconds);
         amplitude.setCurrentAndTargetValue(0.f);
         rate.setCurrentAndTargetValue(0.f);
-
-        ampScaling = newScaling;
-
-        vibratoBuffer.reset(numBuffers);
     }
 
-    void setAmpScaling(float newScale) {
+    void setAmpScaling(float newScale) override {
         ampScaling = newScale;
     }
 
-    void setMetadata(double sampleRate, int samplesPerBlock) {
-        sr = sampleRate;
-        spb = samplesPerBlock;
+    void setInternalBufferSize(int newSize) override {
+        vibratoBuffer.reset(newSize);
     }
 
     /// Sets the new min and max rates for the vibrato. These values should correspond to the min/max
     /// of whatever instrument you are playing, so that the output rateCC correctly maps from 0-127
-    void setMinMaxRate(float newMinRate, float newMaxRate){
+    void setMinMaxRate(float newMinRate, float newMaxRate) override {
         minRate = newMinRate;
         maxRate = newMaxRate;
     }

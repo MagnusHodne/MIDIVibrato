@@ -4,8 +4,8 @@
 MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
         : AudioProcessorEditor(&p),
           processorRef(p),
-          amplitudeMeter([&]() { return processorRef.getAmplitude(); }),
-          rateMeter([&]() { return processorRef.getRate(); }),
+          amplitudeMeter([&]() { return processorRef.getRms(); }),
+          rateMeter([&]() { return processorRef.getFrequency(); }),
           inputSliderAtt(p.getApvts(), "inputCC", inputCCSlider),
           ampSliderAtt(p.getApvts(), "ampCC", ampCCSlider),
           rateSliderAtt(p.getApvts(), "rateCC", rateCCSlider),

@@ -55,20 +55,22 @@ public:
 
     juce::AudioProcessorValueTreeState &getApvts() { return parameters; }
 
-    int getAmplitude() const {
-        return detector.getAmplitude();
+    int getRms() const {
+        return detector->getRms();
     }
 
-    int getRate() {
-        return detector.getRate();
+    int getFrequency() {
+        return detector->getFrequency();
     }
 
 private:
     juce::AudioProcessorValueTreeState parameters;
     int numBuffers;
 
-    VibratoDetector detector;
+    std::unique_ptr<Detector> detector;
     float multiplier = 2.f;
+    double sr;
+    int spb;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginProcessor)
 };

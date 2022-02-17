@@ -14,12 +14,13 @@ MidiPluginProcessor::MidiPluginProcessor()
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
         std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20),
         std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 30.f, 1.f)
-}), numBuffers(parameters.getParameterAsValue("numBuf").getValue()), detector(numBuffers) {
+}), numBuffers(parameters.getParameterAsValue("numBuf").getValue()),
+    detector(std::make_unique<VibratoDetector>(numBuffers))
+{
     parameters.addParameterListener("numBuf", this);
     parameters.addParameterListener("ampScaling", this);
     parameters.addParameterListener("inputCC", this);
     parameters.addParameterListener("ampCC", this);
-    parameters.addParameterListener("rateCC", this);
 }
 
 MidiPluginProcessor::~MidiPluginProcessor() {
@@ -33,36 +34,37 @@ MidiPluginProcessor::~MidiPluginProcessor() {
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
     if (parameterID.equalsIgnoreCase("ampScaling")) {
         multiplier = newValue;
-        detector.setAmpScaling(multiplier);
+        detector->setAmpScaling(multiplier);
     }
     if (parameterID.equalsIgnoreCase("numBuf")) {
         numBuffers = static_cast<int>(newValue);
-        detector.resetValues(numBuffers, multiplier);
+        detector->setInternalBufferSize(numBuffers);
     }
     if (parameterID.equalsIgnoreCase("inputCC")) {
-        detector.setInputController(static_cast<int>(newValue));
+        detector->setInputController(static_cast<int>(newValue));
     }
     if (parameterID.equalsIgnoreCase("ampCC")) {
-        detector.setAmpController(static_cast<int>(newValue));
+        detector->setRmsController(static_cast<int>(newValue));
     }
     if (parameterID.equalsIgnoreCase("rateCC")) {
-        detector.setRateController(static_cast<int>(newValue));
+        detector->setFrequencyController(static_cast<int>(newValue));
     }
 }
 
 //==============================================================================
 void MidiPluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
+    sr = sampleRate;
+    spb = samplesPerBlock;
     // Use this method as the place to do any pre-playback
     // initialisation that you need...
 
     //Note that this is called whenever the user changes device settings, but not before they press play!
-    detector.setMetadata(sampleRate, samplesPerBlock);
-    detector.resetValues(numBuffers, multiplier);
+    detector->resetValues(sr, spb);
 }
 
 void MidiPluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                        juce::MidiBuffer &midiMessages) {
-    detector.processMidi(midiMessages, buffer.getNumSamples());
+    detector->processMidi(midiMessages, buffer.getNumSamples());
     buffer.clear(); //Clearing the audio buffer...
 }
 
