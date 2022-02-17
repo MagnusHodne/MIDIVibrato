@@ -32,11 +32,11 @@ TEST_CASE("Test sine wave") {
     }
 
     SECTION("Test average and RMS") {
-        CHECK(ringBuffer.getRMS() == Catch::Approx(35).margin(4));
+        CHECK(ringBuffer.getRawRms() == Catch::Approx(35).margin(4));
     }
 
     SECTION("Test rate"){
-        CHECK(ringBuffer.getFrequency() == Catch::Approx(frequency).margin(0.2));
+        CHECK(ringBuffer.getRawFrequency() == Catch::Approx(frequency).margin(0.2));
     }
 
 }

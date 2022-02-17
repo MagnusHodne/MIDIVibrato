@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tuple>
-#include <vector>
 #include "juce_core/juce_core.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 
@@ -44,7 +43,15 @@ namespace Utility {
             calculateRMS();
         }
 
-        float getFrequency() {
+        int getFrequency() {
+            return std::clamp(static_cast<int>(frequency.getCurrentValue()), 0, 127);
+        }
+
+        int getRms() {
+            return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
+        }
+
+        float getRawFrequency() {
             /*float numSecondsInBuffer = (float) data.size() / (float) sr;
             float numCycles = (float) numCrossings / 2;
             float freq = numCycles/numSecondsInBuffer;
@@ -52,7 +59,7 @@ namespace Utility {
             return frequency.getCurrentValue();
         }
 
-        float getRMS() {
+        float getRawRms() {
             return amplitude.getCurrentValue();
         }
 
@@ -145,7 +152,6 @@ namespace Utility {
 
         double rampLengthInSeconds = 0.5;
         juce::LinearSmoothedValue<float> amplitude, frequency;
-
 
         static constexpr int halfMidi = 128 / 2 - 1; //= 63
     };
