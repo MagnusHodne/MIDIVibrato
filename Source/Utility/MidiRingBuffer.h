@@ -82,6 +82,10 @@ namespace Utility {
             frequency.setCurrentAndTargetValue(0.f);
         }
 
+        void setSecondsToHold(float newTime){
+            data.assign((int) (sr * newTime), 0);
+        }
+
     private:
         void write(int numSamplesToWrite) {
             if (numSamplesToWrite == 0) return;

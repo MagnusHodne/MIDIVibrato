@@ -9,8 +9,7 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
           inputSliderAtt(p.getApvts(), "inputCC", inputCCSlider),
           ampSliderAtt(p.getApvts(), "ampCC", ampCCSlider),
           rateSliderAtt(p.getApvts(), "rateCC", rateCCSlider),
-          bufferSliderAtt(p.getApvts(), "numBuf", buffersSlider),
-          ampScalingSliderAtt(p.getApvts(), "ampScaling", ampScalingSlider){
+          bufferSliderAtt(p.getApvts(), "numBuf", buffersSlider){
 
     addAndMakeVisible(amplitudeMeter);
     addAndMakeVisible(ampMeterLabel);
@@ -39,12 +38,6 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
     addAndMakeVisible(bufferLabel);
     bufferLabel.setJustificationType(Justification::right);
 
-    addAndMakeVisible(ampScalingSlider);
-    ampScalingSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-    ampScalingSlider.setNumDecimalPlacesToDisplay(1);
-    addAndMakeVisible(ampScalingLabel);
-    ampScalingLabel.setJustificationType(Justification::right);
-
     setResizable(false, false);
 
 
@@ -72,9 +65,6 @@ void MidiPluginEditor::resized() {
 
     labelArea.removeFromTop(height*2);
     inputArea.removeFromTop(height*2);
-
-    ampScalingSlider.setBounds(inputArea.removeFromTop(height));
-    ampScalingLabel.setBounds(labelArea.removeFromTop(height));
 
     buffersSlider.setBounds(inputArea.removeFromTop(height));
     bufferLabel.setBounds(labelArea.removeFromTop(height));

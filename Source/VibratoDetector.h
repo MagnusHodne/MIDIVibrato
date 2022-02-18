@@ -2,18 +2,17 @@
 
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/juce_core.h"
-#include "Utility/VibratoBuffer.h"
 #include "Detector.h"
+#include "Utility/MidiRingBuffer.h"
 
 class VibratoDetector : public Detector {
 public:
     ///
     /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
     explicit VibratoDetector(int initialBufferSize)
-            : vibratoBuffer(initialBufferSize) {
+            : sr(48000),spb(256), ringBuffer((float)initialBufferSize, sr, spb) {
     }
-
-    ~VibratoDetector(){}
+    ~VibratoDetector() override = default;
 
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) override {
         amplitude.skip(numSamples);
@@ -32,10 +31,7 @@ public:
             }
         }
 
-        vibratoBuffer.calculateValues(vibratoData);
-        auto mappedAmplitude = juce::jmap(vibratoBuffer.getRms(), 0, 63, 0, 127);
-        amplitude.setTargetValue(static_cast<float>(mappedAmplitude));
-        rate.setTargetValue(vibratoBuffer.getRate(sr, spb));
+        ringBuffer.push(vibratoData);
 
         passthrough.addEvent(
                 juce::MidiMessage::controllerEvent(1, ampController, getRms()),
@@ -48,14 +44,13 @@ public:
         midiMessages.swapWith(passthrough);
     }
 
-    [[nodiscard]] int getRms() const override {
-        return std::clamp(static_cast<int>(amplitude.getCurrentValue()), 0, 127);
+    [[nodiscard]] int getRms() override {
+        return ringBuffer.getRms();
     }
 
     //Should return rate mapped to the correct values...
-    [[nodiscard]] int getFrequency() const override {
-        auto rawRate = std::clamp(rate.getCurrentValue(), minRate, maxRate);
-        return static_cast<int>(juce::jmap(rawRate, minRate, maxRate, 0.f, 127.f));
+    [[nodiscard]] int getFrequency() override {
+        return ringBuffer.getFrequency(minRate, maxRate);
     }
 
     [[nodiscard]] float getTargetRate() const {
@@ -83,14 +78,15 @@ public:
         rate.reset(sr, rampLengthInSeconds);
         amplitude.setCurrentAndTargetValue(0.f);
         rate.setCurrentAndTargetValue(0.f);
+        ringBuffer.reset(sr, spb);
     }
 
     void setAmpScaling(float newScale) override {
         ampScaling = newScale;
     }
 
-    void setInternalBufferSize(int newSize) override {
-        vibratoBuffer.reset(newSize);
+    void setNumSecondsToHold(float numSeconds) override {
+        ringBuffer.setSecondsToHold(numSeconds);
     }
 
     /// Sets the new min and max rates for the vibrato. These values should correspond to the min/max
@@ -106,15 +102,15 @@ private:
     int ampController = 21;
     int rateController = 20;
 
-    Utility::VibratoBuffer vibratoBuffer;
-
     double rampLengthInSeconds = 0.5;
+
     //These are the min-max Hz rates in Aaron Venture...
     float minRate = 1.68f, maxRate = 7.33f;
     float ampScaling = 1.f;
+    double sr = 48000; //Sample rate
 
-    double sr; //Sample rate
-    int spb; //Samples per buffer
+    int spb = 256; //Samples per buffer
+    Utility::MidiRingBuffer ringBuffer;
 
     juce::LinearSmoothedValue<float> amplitude, rate;
 };

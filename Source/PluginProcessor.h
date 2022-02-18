@@ -65,10 +65,8 @@ public:
 
 private:
     juce::AudioProcessorValueTreeState parameters;
-    int numBuffers;
 
     std::unique_ptr<Detector> detector;
-    float multiplier = 2.f;
     double sr;
     int spb;
 

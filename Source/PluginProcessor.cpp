@@ -9,36 +9,29 @@ MidiPluginProcessor::MidiPluginProcessor()
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 ), parameters(*this, nullptr, "MidiVibrato", juce::AudioProcessorValueTreeState::ParameterLayout{
-        std::make_unique<juce::AudioParameterInt>("numBuf", "Number of buffers", 1, 2048, 128),
+        std::make_unique<juce::AudioParameterFloat>("numSec", "Number of seconds to hold internally", 0.1f, 3.f, 1.f),
         std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
-        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20),
-        std::make_unique<juce::AudioParameterFloat>("ampScaling", "Amp scaling", 1.f, 30.f, 1.f)
-}), numBuffers(parameters.getParameterAsValue("numBuf").getValue()),
-    detector(std::make_unique<VibratoDetector>(numBuffers))
+        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20)
+}),
+    detector(std::make_unique<VibratoDetector>(parameters.getParameterAsValue("numSec").getValue()))
 {
-    parameters.addParameterListener("numBuf", this);
-    parameters.addParameterListener("ampScaling", this);
+    parameters.addParameterListener("numSec", this);
     parameters.addParameterListener("inputCC", this);
     parameters.addParameterListener("ampCC", this);
+    parameters.addParameterListener("rateCC", this);
 }
 
 MidiPluginProcessor::~MidiPluginProcessor() {
-    parameters.removeParameterListener("numBuf", this);
-    parameters.removeParameterListener("ampScaling", this);
+    parameters.removeParameterListener("numSec", this);
     parameters.removeParameterListener("inputCC", this);
     parameters.removeParameterListener("ampCC", this);
     parameters.removeParameterListener("rateCC", this);
 }
 
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
-    if (parameterID.equalsIgnoreCase("ampScaling")) {
-        multiplier = newValue;
-        detector->setAmpScaling(multiplier);
-    }
-    if (parameterID.equalsIgnoreCase("numBuf")) {
-        numBuffers = static_cast<int>(newValue);
-        detector->setInternalBufferSize(numBuffers);
+    if (parameterID.equalsIgnoreCase("numSec")) {
+        detector->setNumSecondsToHold(newValue);
     }
     if (parameterID.equalsIgnoreCase("inputCC")) {
         detector->setInputController(static_cast<int>(newValue));
