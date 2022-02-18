@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_NAME: MyPluginProject # Must match the JUCE project name from juce_add_plugin
+  PROJECT_NAME: MIDIVibrato # Must match the JUCE project name from juce_add_plugin
   BUILD_TYPE: Release
   BUILD_DIR: Builds
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
