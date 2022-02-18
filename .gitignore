@@ -29,3 +29,4 @@ cmake-build-release
 cmake-build-relwithdebinfo
 /build-debug/
 /build-release/
+/MidiVibratoTest.rpp-bak

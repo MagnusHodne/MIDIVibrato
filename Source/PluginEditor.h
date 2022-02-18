@@ -22,13 +22,19 @@ private:
     MidiPluginProcessor &processorRef;
 
     Gui::MidiMeter amplitudeMeter, rateMeter;
-    juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, buffersSlider, scalingSlider;
-    juce::AudioProcessorValueTreeState::SliderAttachment bufferSliderAtt, scalingSliderAtt;
+    juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, timeSlider, frAtSlider, frRelSlider, rmsAtSlider, rmsRelSlider;
+    juce::AudioProcessorValueTreeState::SliderAttachment inputSliderAtt, ampSliderAtt, rateSliderAtt, timeSliderAtt, frAtSliderAtt, frRelSliderAtt, rmsAtSliderAtt, rmsRelSliderAtt;
 
-    Label ampMeterLabel{"ampLabel","Amplitude"},
-    rateMeterLabel{"rateLabel","Rate"},
-    bufferLabel {"bufLabel", "Number of buffers"},
-    scalingLabel {"scaleLabel", "Scaling/Multiplier"};
+    Label ampMeterLabel{"", "Amplitude"},
+            rateMeterLabel{"", "Rate"},
+            timeLabel{"", "Analysis time"},
+            frAtLabel{"", "Frequency attack time"},
+            frRelLabel{"", "Frequency release time"},
+            rmsAtLabel{"", "RMS attack time"},
+            rmsRelLabel{"", "RMS release time"},
+            inputCCLabel{"", "Input CC"},
+            ampCCLabel{"", "Vibrato depth CC"},
+            rateCCLabel{"", "Vibrato rate CC"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MidiPluginEditor)
 };

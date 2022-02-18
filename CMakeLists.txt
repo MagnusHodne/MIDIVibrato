@@ -33,7 +33,7 @@ juce_add_plugin("${TARGET_NAME}"
     NEEDS_MIDI_OUTPUT TRUE/FALSE              # Does the plugin need midi output?
     IS_MIDI_EFFECT TRUE                         # Is this plugin a MIDI effect?
     # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    # Does the editor need keyboard focus?
-    COPY_PLUGIN_AFTER_BUILD FALSE # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
+    COPY_PLUGIN_AFTER_BUILD TRUE # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
     PLUGIN_MANUFACTURER_CODE MaHo 
     PLUGIN_CODE MiVi                            # A unique four-character plugin id with at least one upper-case character
     FORMATS "${FORMATS}"
@@ -46,7 +46,7 @@ target_compile_features("${TARGET_NAME}" PRIVATE cxx_std_20)
 set(SourceFiles
     Source/Component/MidiMeter.h
     Source/VibratoDetector.h
-    Source/Utility/Fifo.h
+    Source/Utility/MidiSineGenerator.h
     Source/PluginEditor.h
     Source/PluginEditor.cpp
     Source/PluginProcessor.h

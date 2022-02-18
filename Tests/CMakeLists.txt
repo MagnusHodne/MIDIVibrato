@@ -15,16 +15,17 @@ set_target_properties(Catch2 PROPERTIES FOLDER Catch2)
 set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
-        FifoTest.cpp)
+        MidiRingBufferTest.cpp
+        SineWaveGeneratorTest.cpp
+        )
 
 # A list of all the files that we need for our unit tests. Unless you write tests for every single class
 # used in the application, it is probably better to just include the files we actually need
 set(TestedFiles
-        ../Source/Utility/Fifo.h
-        ../Source/PluginEditor.cpp
-        ../Source/PluginEditor.h
-        ../Source/PluginProcessor.h
-        ../Source/PluginProcessor.cpp)
+        ../Source/VibratoDetector.h
+        ../Source/Utility/MidiSineGenerator.h
+        ../Source/Utility/MidiRingBuffer.h
+        ../Source/Utility/VibratoBuffer.h)
 
 juce_add_console_app(MyPluginTests
         PRODUCT_NAME "MyPlugin Unit Tests")
