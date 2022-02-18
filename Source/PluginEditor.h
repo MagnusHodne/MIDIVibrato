@@ -2,6 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "Component/MidiMeter.h"
+#include "CustomLookAndFeel.h"
 
 //==============================================================================
 class MidiPluginEditor : public juce::AudioProcessorEditor {
@@ -20,6 +21,7 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MidiPluginProcessor &processorRef;
+    Gui::CustomLookAndFeel customLookAndFeel;
 
     Gui::MidiMeter amplitudeMeter, rateMeter;
     juce::Slider inputCCSlider, ampCCSlider, rateCCSlider, timeSlider, frAtSlider, frRelSlider, rmsAtSlider, rmsRelSlider;

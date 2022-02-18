@@ -15,7 +15,7 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
           rmsAtSliderAtt(p.getApvts(), "rmsAttack", rmsAtSlider),
           rmsRelSliderAtt(p.getApvts(), "rmsRelease", rmsRelSlider)
 {
-
+    setLookAndFeel(&customLookAndFeel);
     auto aamv = [&](juce::Label& l, juce::Component& c) {
         addAndMakeVisible(l);
         addAndMakeVisible(c);
