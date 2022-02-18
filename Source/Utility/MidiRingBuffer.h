@@ -26,11 +26,11 @@ namespace Utility {
 
                 //First we write whatever the previous value was, up until the value should actually change
                 write(time - currentSamplePos);
-                auto currentValue = data[writeHead];
+                auto currentValue = value;
                 //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
                 value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
 
-                if (currentValue > 0 && value <= 0 || currentValue < 0 && value >= 0) {
+                if (currentValue >= 0 && value < 0 || currentValue <= 0 && value > 0) {
                     crossingPositions.emplace_back(writeHead);
                 }
                 currentSamplePos = time;
@@ -89,10 +89,10 @@ namespace Utility {
                 }
 
                 data[writeHead] = value;
+                moveWritePos(1);
                 if(!crossingPositions.empty() && crossingPositions.front() == writeHead){
                     crossingPositions.pop_front();
                 }
-                moveWritePos(1);
             }
         }
 

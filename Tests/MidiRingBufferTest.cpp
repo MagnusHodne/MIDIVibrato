@@ -40,5 +40,21 @@ TEST_CASE("Test sine wave") {
     SECTION("Test rate"){
         CHECK(ringBuffer.getRawFrequency() == Catch::Approx(frequency).margin(0.2));
     }
+}
 
+TEST_CASE("Debug rate test") {
+    double sampleRate = 32;
+    int blockSize = 16;
+    Utility::MidiRingBuffer ringBuffer(1.0f, sampleRate, blockSize);
+
+    juce::MidiBuffer midiBuffer;
+    ringBuffer.setSmoothingRampLength(0.5);
+
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1,1,63), 0);
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1,1,127), 8);
+    ringBuffer.push(midiBuffer);
+    midiBuffer.clear();
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1,1,127), 8);
+    midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1,1,127), 8);
+    ringBuffer.push(midiBuffer);
 }
