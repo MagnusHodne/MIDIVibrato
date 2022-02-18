@@ -10,13 +10,13 @@ public:
     ///
     /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
     explicit VibratoDetector(int initialBufferSize)
-            : sr(48000),spb(256), ringBuffer((float)initialBufferSize, sr, spb) {
+            : sr(48000), spb(256), ringBuffer((float) initialBufferSize, sr, spb) {
     }
+
     ~VibratoDetector() override = default;
 
     void processMidi(juce::MidiBuffer &midiMessages, int numSamples) override {
-        amplitude.skip(numSamples);
-        rate.skip(numSamples);
+        juce::ignoreUnused(numSamples);
         juce::MidiBuffer passthrough;
         juce::MidiBuffer vibratoData;
 
@@ -53,10 +53,6 @@ public:
         return ringBuffer.getFrequency(minRate, maxRate);
     }
 
-    [[nodiscard]] float getTargetRate() const {
-        return rate.getTargetValue();
-    }
-
     void setInputController(int newCC) override {
         inputController = clampCCs(newCC);
     }
@@ -74,15 +70,7 @@ public:
     void resetValues(double sampleRate, int blockSize) override {
         sr = sampleRate;
         spb = blockSize;
-        amplitude.reset(sr, rampLengthInSeconds);
-        rate.reset(sr, rampLengthInSeconds);
-        amplitude.setCurrentAndTargetValue(0.f);
-        rate.setCurrentAndTargetValue(0.f);
         ringBuffer.reset(sr, spb);
-    }
-
-    void setAmpScaling(float newScale) override {
-        ampScaling = newScale;
     }
 
     void setNumSecondsToHold(float numSeconds) override {
@@ -96,21 +84,31 @@ public:
         maxRate = newMaxRate;
     }
 
+    void setFrequencyAttack(float newValue) override {
+        ringBuffer.setFrequencyAttack(newValue);
+    }
+
+    void setFrequencyRelease(float newValue) override {
+        ringBuffer.setFrequencyRelease(newValue);
+    }
+
+    void setRmsAttack(float newValue) override {
+        ringBuffer.setRmsAttack(newValue);
+    }
+
+    void setRmsRelease(float newValue) override {
+        ringBuffer.setRmsRelease(newValue);
+    }
+
 private:
 
     int inputController = 2;
     int ampController = 21;
     int rateController = 20;
 
-    double rampLengthInSeconds = 0.5;
-
     //These are the min-max Hz rates in Aaron Venture...
     float minRate = 1.68f, maxRate = 7.33f;
-    float ampScaling = 1.f;
     double sr = 48000; //Sample rate
-
     int spb = 256; //Samples per buffer
     Utility::MidiRingBuffer ringBuffer;
-
-    juce::LinearSmoothedValue<float> amplitude, rate;
 };

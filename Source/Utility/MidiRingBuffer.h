@@ -64,26 +64,45 @@ namespace Utility {
 
         int getRms() {
             //A sine wave should have an RMS of 0.707 times the max value (which in our case is 64 * 0.707);
-            return static_cast<int>(juce::jmap(getRawRms(), 0.f, 64.f * 0.707f, 0.f, 127.f));
+            auto clamped = std::clamp(getRawRms(), 0.f, 64.f * 0.707f);
+            auto mapped = juce::jmap(clamped, 0.f, 64.f * 0.707f, 0.f, 127.f);
+            return static_cast<int>(std::clamp(mapped, 0.f, 127.f));
         }
 
         void setSmoothingRampLength(double newLength) {
-            rampLengthInSeconds = newLength;
-            amplitude.reset(sr, rampLengthInSeconds);
-            frequency.reset(sr, rampLengthInSeconds);
+            amplitude.reset(sr, newLength);
+            frequency.reset(sr, newLength);
         }
 
         void reset(double sampleRate, int blockSize) {
             sr = sampleRate;
             spb = blockSize;
-            amplitude.reset(sampleRate, rampLengthInSeconds);
+            amplitude.reset(sampleRate, ampAttack);
             amplitude.setCurrentAndTargetValue(0.f);
-            frequency.reset(sampleRate, rampLengthInSeconds);
+            frequency.reset(sampleRate, freqAttack);
             frequency.setCurrentAndTargetValue(0.f);
         }
 
         void setSecondsToHold(float newTime){
             data.assign((int) (sr * newTime), 0);
+        }
+
+        void setFrequencyAttack(float newValue) {
+            freqAttack = newValue;
+            frequency.reset(sr, newValue);
+        }
+
+        void setFrequencyRelease(float newValue) {
+            juce::ignoreUnused(newValue);
+        }
+
+        void setRmsAttack(float newValue) {
+            ampAttack = newValue;
+            amplitude.reset(sr, newValue);
+        }
+
+        void setRmsRelease(float newValue) {
+            juce::ignoreUnused(newValue);
         }
 
     private:
@@ -125,7 +144,7 @@ namespace Utility {
 
         float rmsSum = 0.f;
 
-        double rampLengthInSeconds = 0.5;
+        double ampAttack, freqAttack = 0.5;
         juce::LinearSmoothedValue<float> amplitude, frequency;
     };
 }
