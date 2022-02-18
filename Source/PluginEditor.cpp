@@ -9,41 +9,38 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
           inputSliderAtt(p.getApvts(), "inputCC", inputCCSlider),
           ampSliderAtt(p.getApvts(), "ampCC", ampCCSlider),
           rateSliderAtt(p.getApvts(), "rateCC", rateCCSlider),
-          bufferSliderAtt(p.getApvts(), "numBuf", buffersSlider){
+          timeSliderAtt(p.getApvts(), "numSec", timeSlider),
+          frAtSliderAtt(p.getApvts(), "freqAttack", frAtSlider),
+          frRelSliderAtt(p.getApvts(), "freqRelease", frRelSlider),
+          rmsAtSliderAtt(p.getApvts(), "rmsAttack", rmsAtSlider),
+          rmsRelSliderAtt(p.getApvts(), "rmsRelease", rmsRelSlider)
+{
 
-    addAndMakeVisible(amplitudeMeter);
-    addAndMakeVisible(ampMeterLabel);
-    ampMeterLabel.setJustificationType(Justification::right);
-    addAndMakeVisible(rateMeter);
-    addAndMakeVisible(rateMeterLabel);
-    rateMeterLabel.setJustificationType(Justification::right);
+    auto aamv = [&](juce::Label& l, juce::Component& c) {
+        addAndMakeVisible(l);
+        addAndMakeVisible(c);
+        l.setJustificationType(Justification::right);
+    };
+    aamv(ampMeterLabel, amplitudeMeter);
+    aamv(rateMeterLabel, rateMeter);
+    aamv(timeLabel, timeSlider);
+    aamv(frAtLabel, frAtSlider);
+    aamv(frRelLabel, frRelSlider);
+    aamv(rmsAtLabel, rmsAtSlider);
+    aamv(rmsRelLabel, rmsRelSlider);
 
-    addAndMakeVisible(inputCCSlider);
+    aamv(inputCCLabel, inputCCSlider);
     inputCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
-    addAndMakeVisible(inputCCLabel);
-    inputCCLabel.setJustificationType(Justification::right);
-
-    addAndMakeVisible(ampCCSlider);
+    aamv(ampCCLabel, ampCCSlider);
     ampCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
-    addAndMakeVisible(ampCCLabel);
-    ampCCLabel.setJustificationType(Justification::right);
-
-    addAndMakeVisible(rateCCSlider);
+    aamv(rateCCLabel, rateCCSlider);
     rateCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
-    addAndMakeVisible(rateCCLabel);
-    rateCCLabel.setJustificationType(Justification::right);
-
-    addAndMakeVisible(buffersSlider);
-    buffersSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
-    addAndMakeVisible(bufferLabel);
-    bufferLabel.setJustificationType(Justification::right);
 
     setResizable(false, false);
 
-
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(400, (15*11)+40);
+    setSize(400, (15*15)+40);
 }
 
 void MidiPluginEditor::paint(juce::Graphics &g) {
@@ -51,7 +48,6 @@ void MidiPluginEditor::paint(juce::Graphics &g) {
 }
 
 void MidiPluginEditor::resized() {
-
     auto height = 15;
     auto bounds = getLocalBounds().reduced(20);
     auto labelArea = bounds.removeFromLeft(bounds.getWidth()/2);
@@ -66,16 +62,18 @@ void MidiPluginEditor::resized() {
     labelArea.removeFromTop(height*2);
     inputArea.removeFromTop(height*2);
 
-    buffersSlider.setBounds(inputArea.removeFromTop(height));
-    bufferLabel.setBounds(labelArea.removeFromTop(height));
+    auto place = [&](juce::Label& l, juce::Slider& s) {
+        s.setBounds(inputArea.removeFromTop(height));
+        l.setBounds(labelArea.removeFromTop(height));
+    };
 
-    inputCCSlider.setBounds(inputArea.removeFromTop(height));
-    inputCCLabel.setBounds(labelArea.removeFromTop(height));
-
-    ampCCSlider.setBounds(inputArea.removeFromTop(height));
-    ampCCLabel.setBounds(labelArea.removeFromTop(height));
-
-    rateCCSlider.setBounds(inputArea.removeFromTop(height));
-    rateCCLabel.setBounds(labelArea.removeFromTop(height));
+    place(timeLabel, timeSlider);
+    place(frAtLabel, frAtSlider);
+    place(frRelLabel, frRelSlider);
+    place(rmsAtLabel, rmsAtSlider);
+    place(rmsRelLabel, rmsRelSlider);
+    place(inputCCLabel, inputCCSlider);
+    place(ampCCLabel, ampCCSlider);
+    place(rateCCLabel, rateCCSlider);
 }
 

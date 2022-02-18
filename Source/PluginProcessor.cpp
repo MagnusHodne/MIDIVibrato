@@ -12,7 +12,11 @@ MidiPluginProcessor::MidiPluginProcessor()
         std::make_unique<juce::AudioParameterFloat>("numSec", "Number of seconds to hold internally", 0.1f, 3.f, 1.f),
         std::make_unique<juce::AudioParameterInt>("inputCC", "CC to use as input signal", 1, 127, 2),
         std::make_unique<juce::AudioParameterInt>("ampCC", "CC to use as amplitude/depth signal", 1, 127, 21),
-        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20)
+        std::make_unique<juce::AudioParameterInt>("rateCC", "CC to use for rate output", 1, 127, 20),
+        std::make_unique<juce::AudioParameterFloat>("freqAttack", "Attack smoothing time for frequency", 0.1f, 2.f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("freqRelease", "Release smoothing time for frequency", 0.1f, 2.f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("rmsAttack", "Attack smoothing time for rms", 0.1f, 2.f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("rmsRelease", "Release smoothing time for rms", 0.1f, 2.f, 0.5f),
 }),
     detector(std::make_unique<VibratoDetector>(parameters.getParameterAsValue("numSec").getValue()))
 {
@@ -20,6 +24,10 @@ MidiPluginProcessor::MidiPluginProcessor()
     parameters.addParameterListener("inputCC", this);
     parameters.addParameterListener("ampCC", this);
     parameters.addParameterListener("rateCC", this);
+    parameters.addParameterListener("freqAttack", this);
+    parameters.addParameterListener("freqRelease", this);
+    parameters.addParameterListener("rmsAttack", this);
+    parameters.addParameterListener("rmsRelease", this);
 }
 
 MidiPluginProcessor::~MidiPluginProcessor() {
@@ -27,6 +35,10 @@ MidiPluginProcessor::~MidiPluginProcessor() {
     parameters.removeParameterListener("inputCC", this);
     parameters.removeParameterListener("ampCC", this);
     parameters.removeParameterListener("rateCC", this);
+    parameters.removeParameterListener("freqAttack", this);
+    parameters.removeParameterListener("freqRelease", this);
+    parameters.removeParameterListener("rmsAttack", this);
+    parameters.removeParameterListener("rmsRelease", this);
 }
 
 void MidiPluginProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
