@@ -84,6 +84,7 @@ namespace Utility {
         }
 
         void setSecondsToHold(float newTime){
+            writeHead = 0;
             data.assign((int) (sr * newTime), 0);
         }
 
