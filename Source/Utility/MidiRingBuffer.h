@@ -53,6 +53,11 @@ namespace Utility {
             return frequency.getCurrentValue();
         }
 
+        int getFrequency(float minFrequency, float maxFrequency) {
+            auto clamped = std::clamp(getRawFrequency(), minFrequency, maxFrequency);
+            return static_cast<int>(juce::jmap(clamped, minFrequency, maxFrequency, 0.f, 127.f));
+        }
+
         float getRawRms() {
             return amplitude.getCurrentValue();
         }

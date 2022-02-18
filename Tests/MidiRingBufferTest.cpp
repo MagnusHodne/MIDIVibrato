@@ -39,6 +39,7 @@ TEST_CASE("Test sine wave") {
 
     SECTION("Test rate"){
         CHECK(ringBuffer.getRawFrequency() == Catch::Approx(frequency).margin(0.2));
+        CHECK(ringBuffer.getFrequency(frequency - 1.f, frequency + 1.f) == Catch::Approx(63).margin(12));
     }
 }
 
