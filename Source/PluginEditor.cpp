@@ -44,7 +44,7 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
 }
 
 void MidiPluginEditor::paint(juce::Graphics &g) {
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(Gui::CustomLookAndFeel::getCustomBackgroundColour());
 }
 
 void MidiPluginEditor::resized() {

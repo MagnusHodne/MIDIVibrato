@@ -49,6 +49,7 @@ set(SourceFiles
     Source/VibratoDetector.h
     Source/Utility/MidiSineGenerator.h
     Source/Utility/Identifiers.h
+    Source/Utility/CustomColourIDs.h
     Source/PluginEditor.h
     Source/PluginEditor.cpp
     Source/PluginProcessor.h

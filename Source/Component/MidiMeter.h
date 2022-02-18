@@ -1,6 +1,7 @@
 #pragma once
 
 #include "juce_gui_basics/juce_gui_basics.h"
+#include "Utility/CustomColourIDs.h"
 
 using namespace juce;
 
@@ -17,7 +18,7 @@ namespace Gui {
             g.setColour(Colours::white.withBrightness(0.4f));
             g.fillRoundedRectangle(bounds, 5.f);
 
-            g.setColour(Colours::white);
+            g.setColour(getLookAndFeel().findColour(CustomColourIDs::accentColour));
             const auto scaledX = jmap(level, 0, 127, 0, getWidth());
             g.fillRoundedRectangle(bounds.removeFromLeft(static_cast<float>(scaledX)), 5.f);
         }

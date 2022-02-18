@@ -3,19 +3,10 @@
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
 #include "Utility/Identifiers.h"
+#include "Utility/CustomColourIDs.h"
 
 namespace Gui {
     using namespace juce;
-
-    enum CustomColourIDs
-    {
-        backgroundColour = 1,
-        accentColour,
-        voiceColour,
-        bassVoiceColour,
-        melodyVoiceColour,
-        textColour
-    };
 
     class CustomLookAndFeel : public LookAndFeel_V4
     {
@@ -46,8 +37,6 @@ namespace Gui {
         //Mostly copied from LookAndFeel_V4
         void InitialiseColours(bool recreateTheme = false)
         {
-
-
             //If we have a default theme file in the right location, init with that. Else, create a new default theme
             /*if(const auto defaultTheme = AppState::getInstance()->getDefaultTheme(); defaultTheme.existsAsFile() && !recreateTheme) {
                 SetThemeFromFile(defaultTheme);
