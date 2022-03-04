@@ -19,16 +19,13 @@ namespace Utility {
                 //make sure the writeHead has moved to the "end" of the given buffer
                 moveWriteHead(spb - samplePos);
             }
+            moveReadHead(spb);
         }
 
         /// Returns a MidiBuffer with the "oldest" data in the buffer. The block size
         /// of this buffer is the same as the buffer supplied in the push method
         juce::MidiBuffer pop() {
-            juce::MidiBuffer buffer;
-            if (!data.empty()) {
-                //Add the data we need
-            }
-            return buffer;
+            return readBuffer;
         }
 
     private:
@@ -53,6 +50,7 @@ namespace Utility {
 
         void moveReadHead(int amount) {
             readHead = (readHead + amount < samplesToHold) ? readHead += amount : amount - samplesToHold - readHead;
+
         }
 
         static int millisecondsToSamples(double sampleRate, int milliseconds) {
@@ -63,6 +61,7 @@ namespace Utility {
         int samplesToHold;
         int writeHead = 0;
         int readHead;
+        juce::MidiBuffer readBuffer;
         double sr; //Sample rate
         std::deque<juce::MidiMessageMetadata> data;
     };
