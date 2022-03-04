@@ -8,7 +8,8 @@ namespace Utility {
         }
 
         void push(juce::MidiBuffer &buffer) {
-            int startPos = writeHead;
+            int initWritePos = writeHead;
+            int initReadPos = readHead;
             int samplePos = 0; //Holds the last written data position
             for (auto metadata: buffer) {
                 moveWriteHead(metadata.samplePosition - samplePos);
@@ -20,7 +21,11 @@ namespace Utility {
                 //make sure the writeHead has moved to the "end" of the given buffer
                 moveWriteHead(spb - samplePos);
             }
-            removeElementsInRange(startPos, writeHead);
+            removeElementsInRange(initWritePos, writeHead);
+
+            readBuffer.clear();
+            moveReadHead(spb);
+            addElementsInRange(initReadPos, readHead);
         }
 
         /// Returns a MidiBuffer with the "oldest" data in the buffer. The block size
@@ -44,6 +49,14 @@ namespace Utility {
         void removeElementsInRange(int begin, int end) {
             data.removeIf([begin, end, this](juce::MidiMessageMetadata item) {
                 return isInRange(begin, end, item.samplePosition);
+            });
+        }
+
+        void addElementsInRange(int begin, int end){
+            std::for_each(data.begin(), data.end(), [this, begin, end](const juce::MidiMessageMetadata& element){
+                if(isInRange(begin, end, element.samplePosition)){
+                    readBuffer.addEvent(element.getMessage(), whereInRange(begin, end, element.samplePosition));
+                }
             });
         }
 
