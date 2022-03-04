@@ -20,6 +20,7 @@ namespace Utility {
                 moveWriteHead(spb - samplePos);
             }
             moveReadHead(spb);
+
         }
 
         /// Returns a MidiBuffer with the "oldest" data in the buffer. The block size
@@ -49,8 +50,20 @@ namespace Utility {
         }
 
         void moveReadHead(int amount) {
+            int oldPos = readHead;
             readHead = (readHead + amount < samplesToHold) ? readHead += amount : amount - samplesToHold - readHead;
 
+            if(data.empty()) return;
+            auto it = data.begin();
+        }
+
+        bool isInRange(int begin, int end, int pos){
+            if(begin < end){
+                return pos >= begin && pos <= end;
+            }
+            bool isBetweenBeginAndBounds = pos >= begin && pos < samplesToHold;
+            bool isBetweenZeroAndEnd = pos >= 0 && pos <= end;
+            return isBetweenBeginAndBounds && isBetweenZeroAndEnd;
         }
 
         static int millisecondsToSamples(double sampleRate, int milliseconds) {
