@@ -30,15 +30,15 @@ namespace Utility {
         }
 
     private:
-        // Moves the read head and overwrites any old data
+        // Moves the read head
         void moveWriteHead(int amount) {
-            /// If incrementing the writeHead doesn't go out of bounds, just increment. Else,
+            /// If incrementing the writeHead doesn't go out of bounds, just increment.
             writeHead = (writeHead + amount < samplesToHold) ? writeHead += amount : samplesToHold -
                                                                                      (amount + writeHead);
         }
 
         void moveReadHead(int amount) {
-            readHead = (readHead + amount < samplesToHold) ? readHead += amount : amount - samplesToHold - readHead;
+            readHead = (readHead + amount < samplesToHold) ? readHead += amount : samplesToHold - (amount + readHead);
         }
 
         void removeElementsInRange(int begin, int end) {
@@ -71,7 +71,8 @@ namespace Utility {
 
 
         struct MetadataComparator {
-            static int compareElements(juce::MidiMessageMetadata first, juce::MidiMessageMetadata second) {
+            static int
+            compareElements(const juce::MidiMessageMetadata &first, const juce::MidiMessageMetadata &second) {
                 if (first.samplePosition == second.samplePosition) return 0;
                 return first.samplePosition < second.samplePosition ? -1 : 1;
             }
