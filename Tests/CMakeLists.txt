@@ -16,6 +16,7 @@ set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
         MidiRingBufferTest.cpp
+        MidiLengthFilterTest.cpp
         SineWaveGeneratorTest.cpp
         )
 
@@ -23,6 +24,7 @@ set(UnitTests
 # used in the application, it is probably better to just include the files we actually need
 set(TestedFiles
         ../Source/VibratoDetector.h
+        ../Source/Utility/MidiLengthFilter.h
         ../Source/Utility/MidiSineGenerator.h
         ../Source/Utility/MidiRingBuffer.h)
 
