@@ -50,20 +50,34 @@ namespace Utility {
         }
 
         void moveReadHead(int amount) {
+            readBuffer.clear();
             int oldPos = readHead;
             readHead = (readHead + amount < samplesToHold) ? readHead += amount : amount - samplesToHold - readHead;
 
-            if(data.empty()) return;
-            auto it = data.begin();
+            if (data.empty()) return;
+            for (auto element: data) {
+                if (isInRange(oldPos, readHead, element.samplePosition)) {
+                    readBuffer.addEvent(element.getMessage(), whereInRange(oldPos, readHead, element.samplePosition));
+                }
+            }
         }
 
-        bool isInRange(int begin, int end, int pos){
-            if(begin < end){
+        //Checks whether the given position is within the range. This handles wraparounds for us
+        bool isInRange(int begin, int end, int pos) const {
+            if (begin < end) {
                 return pos >= begin && pos <= end;
             }
             bool isBetweenBeginAndBounds = pos >= begin && pos < samplesToHold;
             bool isBetweenZeroAndEnd = pos >= 0 && pos <= end;
             return isBetweenBeginAndBounds && isBetweenZeroAndEnd;
+        }
+
+        //Translates an index in the ringBuffer to a corresponding index in an output buffer
+        //For example, an element at index 5 should translate to index 3 if we give it the range 2-7
+        int whereInRange(int begin, int end, int pos) const {
+            if (begin < end) return pos - begin;
+            if (pos > begin && pos < samplesToHold) return pos - begin;
+            return pos - (samplesToHold - begin);
         }
 
         static int millisecondsToSamples(double sampleRate, int milliseconds) {
