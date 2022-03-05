@@ -4,33 +4,46 @@
 
 #include "../Source/Utility/MidiLengthFilter.h"
 
-TEST_CASE("Test ring buffer") {
-    double sampleRate = 48000;
-    int blockSize = 4;
-    int samplesToHold = 10;
+TEST_CASE("Invalid range should throw error") {
+    REQUIRE_THROWS(Utility::MidiLengthFilter(256, 4));
+}
 
-    Utility::MidiLengthFilter ringBuffer(sampleRate, blockSize, samplesToHold);
+TEST_CASE("Test ring buffer") {
+
     juce::MidiBuffer midiBuffer;
     midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 1), 1);
     midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 2), 2);
 
-    ringBuffer.push(midiBuffer);
-    CHECK(ringBuffer.pop().getNumEvents() == 0);
+    SECTION("With block size 4 (no delay)") {
+        Utility::MidiLengthFilter ringBuffer(4, 4);
+        ringBuffer.push(midiBuffer);
+        auto res = ringBuffer.peek();
+        CHECK(res.getNumEvents() == 2);
+        CHECK(res.getFirstEventTime() == 1);
+        CHECK(res.getLastEventTime() == 2);
+    }
 
-    ringBuffer.push(midiBuffer);
-    ringBuffer.push(midiBuffer);
-    auto res = ringBuffer.pop();
-    CHECK(res.getNumEvents() == 1);
-    CHECK(res.getFirstEventTime() == 3);
+    SECTION("With block size 5 (delay of 1 sample)") {
+        Utility::MidiLengthFilter ringBuffer(4, 5);
+        ringBuffer.push(midiBuffer);
+        auto res = ringBuffer.peek();
+        CHECK(res.getNumEvents() == 2);
+        CHECK(res.getFirstEventTime() == 2);
+        CHECK(res.getLastEventTime() == 3);
+    }
 
-    ringBuffer.push(midiBuffer);
-    res = ringBuffer.pop();
-    CHECK(res.getNumEvents() == 1);
-    CHECK(res.getFirstEventTime() == 3);
+    SECTION("With block size 12 (delay of 8 samples") {
+        Utility::MidiLengthFilter ringBuffer(4, 12);
+        ringBuffer.push(midiBuffer);
+        CHECK(ringBuffer.peek().getNumEvents() == 0);
 
-    ringBuffer.push(midiBuffer);
-    res = ringBuffer.pop();
-    CHECK(ringBuffer.pop().getNumEvents() == 2);
-    CHECK(res.getFirstEventTime() == 1);
-    CHECK(res.getFirstEventTime() == 2);
+        ringBuffer.push(midiBuffer);
+        CHECK(ringBuffer.peek().getNumEvents() == 0);
+
+        ringBuffer.push(midiBuffer);
+        auto res = ringBuffer.peek();
+        CHECK(res.getNumEvents() == 2);
+        CHECK(res.getFirstEventTime() == 1);
+        CHECK(res.getLastEventTime() == 2);
+    }
 }
