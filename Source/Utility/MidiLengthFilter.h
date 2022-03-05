@@ -12,10 +12,10 @@ namespace Utility {
         }
 
         void push(const juce::MidiBuffer &buffer) {
-            if (spb == samplesToHold) {
+            /*if (spb == samplesToHold) {
                 readBuffer.addEvents(buffer, 0, spb, 0);
                 return;
-            }
+            }*/
 
             int samplePos = 0; //Holds the last written data position
             for (auto metadata: buffer) {
