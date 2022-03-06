@@ -4,18 +4,27 @@
 namespace Utility {
     class MidiLengthFilter {
     public:
-        MidiLengthFilter(int blockSize, int samplesToHold) :
-                spb(blockSize), samplesToHold(samplesToHold) {
+        MidiLengthFilter(int blockSize, int delayInSamples) :
+                spb(blockSize), samplesToHold(delayInSamples + blockSize) {
             if (spb > samplesToHold) {
                 throw std::range_error("Cannot hold a negative time delay!");
             }
         }
 
+        MidiLengthFilter(int blockSize, double sampleRate, int delayInMs) : MidiLengthFilter(blockSize,
+                                                                                             millisecondsToSamples(
+                                                                                                     sampleRate,
+                                                                                                     delayInMs)) {
+        }
+
+        /// Adds a block of MIDI data to the ring buffer
         void push(const juce::MidiBuffer &buffer) {
-            /*if (spb == samplesToHold) {
+
+            //This means that we have a delay of zero samples, so we can just copy the contents of the buffer into the read buffer
+            if (spb == samplesToHold) {
                 readBuffer.addEvents(buffer, 0, spb, 0);
                 return;
-            }*/
+            }
 
             int samplePos = 0; //Holds the last written data position
             for (auto metadata: buffer) {

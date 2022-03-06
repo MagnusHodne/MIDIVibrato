@@ -14,8 +14,8 @@ TEST_CASE("Test ring buffer") {
     midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 1), 1);
     midiBuffer.addEvent(juce::MidiMessage::controllerEvent(1, 1, 2), 2);
 
-    SECTION("With block size 4 (no delay)") {
-        Utility::MidiLengthFilter ringBuffer(4, 4);
+    SECTION("With no delay") {
+        Utility::MidiLengthFilter ringBuffer(4, 0);
         ringBuffer.push(midiBuffer);
         auto res = ringBuffer.peek();
         CHECK(res.getNumEvents() == 2);
@@ -23,8 +23,8 @@ TEST_CASE("Test ring buffer") {
         CHECK(res.getLastEventTime() == 2);
     }
 
-    SECTION("With block size 5 (delay of 1 sample)") {
-        Utility::MidiLengthFilter ringBuffer(4, 5);
+    SECTION("With 1 sample delay") {
+        Utility::MidiLengthFilter ringBuffer(4, 1);
         ringBuffer.push(midiBuffer);
         auto res = ringBuffer.peek();
         CHECK(res.getNumEvents() == 2);
@@ -32,8 +32,8 @@ TEST_CASE("Test ring buffer") {
         CHECK(res.getLastEventTime() == 3);
     }
 
-    SECTION("With block size 12 (delay of 8 samples") {
-        Utility::MidiLengthFilter ringBuffer(4, 12);
+    SECTION("With 8 samples delay") {
+        Utility::MidiLengthFilter ringBuffer(4, 8);
         ringBuffer.push(midiBuffer);
         CHECK(ringBuffer.peek().getNumEvents() == 0);
 
@@ -45,5 +45,21 @@ TEST_CASE("Test ring buffer") {
         CHECK(res.getNumEvents() == 2);
         CHECK(res.getFirstEventTime() == 1);
         CHECK(res.getLastEventTime() == 2);
+    }
+
+    SECTION("With 5 milliseconds delay") {
+        Utility::MidiLengthFilter ringBuffer(64, 48000, 5);
+
+        // At 48KHz, one millisecond = 48000/1000 = 48 samples;
+        // 5 ms = 240 samples = 240/64 = ~4 buffers of data to
+        ringBuffer.push(midiBuffer);
+        ringBuffer.push(juce::MidiBuffer());
+        ringBuffer.push(juce::MidiBuffer());
+        ringBuffer.push(juce::MidiBuffer());
+
+        auto res = ringBuffer.peek();
+        CHECK(res.getNumEvents() == 2);
+        CHECK(res.getFirstEventTime() == 1 + 48);
+        CHECK(res.getLastEventTime() == 2 + 48);
     }
 }
