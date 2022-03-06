@@ -3,7 +3,7 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/juce_core.h"
 #include "Detector.h"
-#include "Utility/MidiRingBuffer.h"
+#include "Utility/VibratoBuffer.h"
 
 class VibratoDetector : public Detector {
 public:
@@ -110,5 +110,5 @@ private:
     float minRate = 1.68f, maxRate = 7.33f;
     double sr = 48000; //Sample rate
     int spb = 256; //Samples per buffer
-    Utility::MidiRingBuffer ringBuffer;
+    Utility::VibratoBuffer ringBuffer;
 };

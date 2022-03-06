@@ -1,151 +1,114 @@
-#pragma once
-
-#include <deque>
-#include "juce_core/juce_core.h"
 #include "juce_audio_basics/juce_audio_basics.h"
+#include <deque>
 
 namespace Utility {
     class MidiRingBuffer {
     public:
-        explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize)
-                : data((int)(sampleRate * numSecondsToHold), 0),
-                  crossingPositions(0),
-                  spb(blockSize),
-                  sr(sampleRate) {
-            reset(sampleRate, blockSize);
+        MidiRingBuffer(int blockSize, int delayInSamples) :
+                spb(blockSize), samplesToHold(delayInSamples + blockSize) {
+            if (spb > samplesToHold) {
+                throw std::range_error("Cannot hold a negative time delay!");
+            }
         }
 
-        void push(juce::MidiBuffer &buffer) {
-            amplitude.skip(spb);
-            frequency.skip(spb);
+        MidiRingBuffer(int blockSize, double sampleRate, int delayInMs) : MidiRingBuffer(blockSize,
+                                                                                         millisecondsToSamples(
+                                                                                                     sampleRate,
+                                                                                                     delayInMs)) {
+        }
 
-            int currentSamplePos = 0;
+        /// Adds a block of MIDI data to the ring buffer
+        void push(const juce::MidiBuffer &buffer) {
 
+            //This means that we have a delay of zero samples, so we can just copy the contents of the buffer into the read buffer
+            if (spb == samplesToHold) {
+                readBuffer.addEvents(buffer, 0, spb, 0);
+                return;
+            }
+
+            int samplePos = 0; //Holds the last written data position
             for (auto metadata: buffer) {
-                auto time = metadata.samplePosition;
-
-                //First we write whatever the previous value was, up until the value should actually change
-                write(time - currentSamplePos);
-                auto currentValue = value;
-                //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
-                value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
-
-                if (currentValue >= 0 && value < 0 || currentValue <= 0 && value > 0) {
-                    crossingPositions.emplace_back(writeHead);
-                }
-                currentSamplePos = time;
+                moveWriteHead(metadata.samplePosition - samplePos);
+                samplePos = metadata.samplePosition;
+                metadata.samplePosition = writeHead;
+                data.emplace_back(metadata);
             }
-            //Make sure we write the remaining values in the buffer
-            if (currentSamplePos < spb) {
-                write(spb - currentSamplePos);
+            if (samplePos < spb) {
+                //make sure the writeHead has moved to the "end" of the given buffer
+                moveWriteHead(spb - samplePos);
             }
 
-            auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
-            amplitude.setTargetValue(rms);
+            handleOldData();
 
-            float numSecondsInBuffer = (float) data.size() / (float) sr;
-            float numCycles = (float) crossingPositions.size() / 2;
-            float freq = numCycles/numSecondsInBuffer;
-            frequency.setTargetValue(freq);
         }
 
-        float getRawFrequency() {
-            return frequency.getCurrentValue();
-        }
-
-        int getFrequency(float minFrequency, float maxFrequency) {
-            auto clamped = std::clamp(getRawFrequency(), minFrequency, maxFrequency);
-            return static_cast<int>(juce::jmap(clamped, minFrequency, maxFrequency, 0.f, 127.f));
-        }
-
-        float getRawRms() {
-            return amplitude.getCurrentValue();
-        }
-
-        int getRms() {
-            //A sine wave should have an RMS of 0.707 times the max value (which in our case is 64 * 0.707);
-            auto clamped = std::clamp(getRawRms(), 0.f, 64.f * 0.707f);
-            auto mapped = juce::jmap(clamped, 0.f, 64.f * 0.707f, 0.f, 127.f);
-            return static_cast<int>(std::clamp(mapped, 0.f, 127.f));
-        }
-
-        void setSmoothingRampLength(double newLength) {
-            amplitude.reset(sr, newLength);
-            frequency.reset(sr, newLength);
-        }
-
-        void reset(double sampleRate, int blockSize) {
-            sr = sampleRate;
-            spb = blockSize;
-            amplitude.reset(sampleRate, ampAttack);
-            amplitude.setCurrentAndTargetValue(0.f);
-            frequency.reset(sampleRate, freqAttack);
-            frequency.setCurrentAndTargetValue(0.f);
-        }
-
-        void setSecondsToHold(float newTime){
-            writeHead = 0;
-            data.assign((int) (sr * newTime), 0);
-        }
-
-        void setFrequencyAttack(float newValue) {
-            freqAttack = newValue;
-            frequency.reset(sr, newValue);
-        }
-
-        void setFrequencyRelease(float newValue) {
-            juce::ignoreUnused(newValue);
-        }
-
-        void setRmsAttack(float newValue) {
-            ampAttack = newValue;
-            amplitude.reset(sr, newValue);
-        }
-
-        void setRmsRelease(float newValue) {
-            juce::ignoreUnused(newValue);
+        /// Returns a MidiBuffer with the "oldest" data in the buffer. The block size
+        /// of this buffer is the same as the buffer supplied in the push method
+        juce::MidiBuffer peek() {
+            return readBuffer;
         }
 
     private:
-        void write(int numSamplesToWrite) {
-            if (numSamplesToWrite == 0) return;
-            for (int i = 0; i < numSamplesToWrite; i++) {
-                auto oldestValue = data[writeHead];
-                {
-                    //Calculate RMS
-                    rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
-                    rmsSum += std::powf(static_cast<float>(value), 2.0);
-                }
 
-                data[writeHead] = value;
-                moveWritePos(1);
-                if(!crossingPositions.empty() && crossingPositions.front() == writeHead){
-                    crossingPositions.pop_front();
+        /// Copies over the oldest data in the ringBuffer to the readBuffer before erasing ("overwriting") it
+        void handleOldData() {
+            int start = writeHead;
+            moveWriteHead(spb);
+            readBuffer.clear();
+
+            if (!data.empty()) {
+                auto iterator = data.begin();
+                while (!data.empty() && iterator != data.end() &&
+                       isInRange(start, writeHead, iterator->samplePosition)) {
+                    int translatedPosition = whereInRange(start, writeHead, iterator->samplePosition);
+                    readBuffer.addEvent(iterator->getMessage(), translatedPosition);
+
+                    data.pop_front();
+                    iterator = data.begin();
                 }
+            }
+            writeHead = start;
+        }
+
+        void moveWriteHead(int amount) {
+            if (amount > 0) {
+                //Traverse forwards
+                writeHead = (writeHead + amount < samplesToHold) ? writeHead += amount : amount -
+                                                                                         (samplesToHold - writeHead);
+            } else {
+                //Traverse backwards
+                writeHead = (writeHead + amount >= 0) ? writeHead += amount : samplesToHold - (writeHead + amount);
             }
         }
 
-        //Method for arbitrarily moving the writeHead any number of positions
-        void moveWritePos(int increment) {
-            //If we aren't out of bounds when incrementing by the desired amount, simply increment
-            if (writeHead + increment < data.size()) writeHead += increment;
-                //Wrap around
-            else {
-                auto delta = (int) data.size() - writeHead;
-                writeHead = 0 + increment - delta;
+        //Checks whether the given position is within the range. This handles wraparounds for us
+        [[nodiscard]] bool isInRange(int begin, int end, int pos) const {
+            if (begin < end) {
+                return pos >= begin && pos <= end;
             }
+            bool isBetweenBeginAndBounds = pos >= begin && pos < samplesToHold;
+            bool isBetweenZeroAndEnd =
+                    pos >= 0 && pos < end; //If the blockSize is 4, then we want to return true for indices 0-3
+            return isBetweenBeginAndBounds || isBetweenZeroAndEnd;
         }
 
-        std::vector<int> data; //Holds MIDI msg value
-        std::deque<int> crossingPositions; //TODO - implement a lock-free FIFO instead
-        int writeHead = 0;
-        int value = 0;
+        //Translates an index in the ringBuffer to a corresponding index in an output buffer
+        //For example, an element at index 5 should translate to index 3 if we give it the range 2-7
+        [[nodiscard]] int whereInRange(int begin, int end, int pos) const {
+            if (begin > end) {
+                return pos + (samplesToHold - begin);
+            }
+            return pos - begin;
+        }
+
+        static int millisecondsToSamples(double sampleRate, int milliseconds) {
+            return ((int) sampleRate / 1000) * milliseconds;
+        }
+
         int spb; //Block size
-        double sr; //Sample rate
-
-        float rmsSum = 0.f;
-
-        double ampAttack, freqAttack = 0.5;
-        juce::LinearSmoothedValue<float> amplitude, frequency;
+        int samplesToHold;
+        int writeHead = 0;
+        juce::MidiBuffer readBuffer;
+        std::deque<juce::MidiMessageMetadata> data;
     };
 }

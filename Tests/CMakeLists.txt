@@ -15,8 +15,8 @@ set_target_properties(Catch2 PROPERTIES FOLDER Catch2)
 set_target_properties(Catch2WithMain PROPERTIES FOLDER Catch2)
 
 set(UnitTests
+        MidiVibratoBufferTest.cpp
         MidiRingBufferTest.cpp
-        MidiLengthFilterTest.cpp
         SineWaveGeneratorTest.cpp
         )
 
@@ -24,9 +24,9 @@ set(UnitTests
 # used in the application, it is probably better to just include the files we actually need
 set(TestedFiles
         ../Source/VibratoDetector.h
-        ../Source/Utility/MidiLengthFilter.h
+        ../Source/Utility/MidiRingBuffer.h
         ../Source/Utility/MidiSineGenerator.h
-        ../Source/Utility/MidiRingBuffer.h)
+        ../Source/Utility/VibratoBuffer.h)
 
 juce_add_console_app(MyPluginTests
         PRODUCT_NAME "MyPlugin Unit Tests")
