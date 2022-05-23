@@ -11,7 +11,6 @@ TEST_CASE("Test sine wave") {
     float frequency = GENERATE(take(100, random(1.f, 4.5f)));
 
     //This is the min window size if we want to detect frequencies down to 1Hz
-    auto minimumWindowSize = static_cast<int>(sampleRate/1.f);
     int controllerType = 1;
 
     Utility::MidiSineGenerator sineGenerator(controllerType, frequency, sampleRate, blockSize);

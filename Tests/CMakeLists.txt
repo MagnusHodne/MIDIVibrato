@@ -18,6 +18,7 @@ set(UnitTests
         MidiVibratoBufferTest.cpp
         MidiRingBufferTest.cpp
         SineWaveGeneratorTest.cpp
+        MidiHeldNoteTest.cpp
         )
 
 # A list of all the files that we need for our unit tests. Unless you write tests for every single class
@@ -26,6 +27,7 @@ set(TestedFiles
         ../Source/VibratoDetector.h
         ../Source/Utility/MidiRingBuffer.h
         ../Source/Utility/MidiSineGenerator.h
+        ../Source/Utility/MidiHeldNoteUtil.h
         ../Source/Utility/VibratoBuffer.h)
 
 juce_add_console_app(MyPluginTests
