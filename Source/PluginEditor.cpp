@@ -19,7 +19,7 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
     auto aamv = [&](juce::Label& l, juce::Component& c) {
         addAndMakeVisible(l);
         addAndMakeVisible(c);
-        l.setJustificationType(Justification::right);
+        l.setJustificationType(juce::Justification::right);
     };
     aamv(ampMeterLabel, amplitudeMeter);
     aamv(rateMeterLabel, rateMeter);
@@ -30,11 +30,11 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
     aamv(rmsRelLabel, rmsRelSlider);
 
     aamv(inputCCLabel, inputCCSlider);
-    inputCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
+    inputCCSlider.setSliderStyle(juce::Slider::SliderStyle::IncDecButtons);
     aamv(ampCCLabel, ampCCSlider);
-    ampCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
+    ampCCSlider.setSliderStyle(juce::Slider::SliderStyle::IncDecButtons);
     aamv(rateCCLabel, rateCCSlider);
-    rateCCSlider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
+    rateCCSlider.setSliderStyle(juce::Slider::SliderStyle::IncDecButtons);
 
     setResizable(false, false);
 
@@ -44,7 +44,7 @@ MidiPluginEditor::MidiPluginEditor(MidiPluginProcessor &p)
 }
 
 void MidiPluginEditor::paint(juce::Graphics &g) {
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(juce::Colours::darkgrey);
 }
 
 void MidiPluginEditor::resized() {
