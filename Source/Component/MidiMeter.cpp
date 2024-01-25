@@ -8,7 +8,7 @@ namespace Gui
         startTimerHz(60);
     }
 
-    void MidiMeter::paint(juce::Graphics& g) override
+    void MidiMeter::paint(juce::Graphics& g)
     {
         const auto level = valueSupplier();
         auto bounds = getLocalBounds().toFloat();
