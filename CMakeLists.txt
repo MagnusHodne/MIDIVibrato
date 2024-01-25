@@ -50,6 +50,8 @@ set(SourceFiles
     Source/VibratoDetector.cpp
     Source/Utility/MidiSineGenerator.h
     Source/Utility/MidiSineGenerator.cpp
+    Source/Utility/MidiUtils.h
+    Source/Utility/MidiUtils.cpp
     Source/PluginEditor.h
     Source/PluginEditor.cpp
     Source/PluginProcessor.h

@@ -1,4 +1,5 @@
 #include "VibratoDetector.h"
+#include "Utility/MidiUtils.h"
 #include "juce_core/juce_core.h"
 
 VibratoDetector::VibratoDetector(int initialBufferSize)
@@ -52,22 +53,17 @@ int VibratoDetector::getFrequency()
 
 void VibratoDetector::setInputController(const int newCC)
 {
-    inputController = clampCCs(newCC);
+    inputController = Utility::clamp7Bit(newCC);
 }
 
 void VibratoDetector::setRmsController(const int newCC)
 {
-    ampController = clampCCs(newCC);
+    ampController = Utility::clamp7Bit(newCC);
 }
 
 void VibratoDetector::setFrequencyController(const int newCC)
 {
-    rateController = clampCCs(newCC);
-}
-
-int VibratoDetector::clampCCs(const int newCC)
-{
-    return std::clamp(newCC, 1, 127);
+    rateController = Utility::clamp7Bit(newCC);
 }
 
 void VibratoDetector::resetValues(const double sampleRate, const int blockSize)

@@ -25,8 +25,6 @@ public:
 
     void setFrequencyController(int newCC) override;
 
-    static int clampCCs(int newCC);
-
     void resetValues(double sampleRate, int blockSize) override;
 
     void setNumSecondsToHold(float numSeconds) override;
