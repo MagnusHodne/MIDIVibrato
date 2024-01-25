@@ -9,7 +9,7 @@ namespace Utility {
     public:
         explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize);
 
-        void push(juce::MidiBuffer &buffer);
+        void push(const juce::MidiBuffer &buffer);
 
         float getRawFrequency();
 

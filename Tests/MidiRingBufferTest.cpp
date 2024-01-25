@@ -44,8 +44,8 @@ TEST_CASE("Test sine wave") {
 }
 
 TEST_CASE("Debug rate test") {
-    double sampleRate = 32;
-    int blockSize = 16;
+    constexpr double sampleRate = 32;
+    constexpr int blockSize = 16;
     Utility::MidiRingBuffer ringBuffer(1.0f, sampleRate, blockSize);
 
     juce::MidiBuffer midiBuffer;

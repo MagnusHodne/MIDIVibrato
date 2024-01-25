@@ -10,7 +10,7 @@ TEST_CASE("Test Min/Max Sine Wave values", "[Utility]"){
         buffer.clear();
         generator.fillBuffer(buffer);
         for(auto metadata : buffer){
-            auto value = metadata.getMessage().getControllerValue();
+            const auto value = metadata.getMessage().getControllerValue();
             if(value < minValue) minValue = value;
             if(value > maxValue) maxValue = value;
         }

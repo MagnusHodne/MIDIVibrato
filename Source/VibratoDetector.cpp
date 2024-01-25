@@ -50,60 +50,60 @@ int VibratoDetector::getFrequency()
     return ringBuffer.getFrequency(minRate, maxRate);
 }
 
-void VibratoDetector::setInputController(int newCC)
+void VibratoDetector::setInputController(const int newCC)
 {
     inputController = clampCCs(newCC);
 }
 
-void VibratoDetector::setRmsController(int newCC)
+void VibratoDetector::setRmsController(const int newCC)
 {
     ampController = clampCCs(newCC);
 }
 
-void VibratoDetector::setFrequencyController(int newCC)
+void VibratoDetector::setFrequencyController(const int newCC)
 {
     rateController = clampCCs(newCC);
 }
 
-int VibratoDetector::clampCCs(int newCC)
+int VibratoDetector::clampCCs(const int newCC)
 {
     return std::clamp(newCC, 1, 127);
 }
 
-void VibratoDetector::resetValues(double sampleRate, int blockSize)
+void VibratoDetector::resetValues(const double sampleRate, const int blockSize)
 {
     sr = sampleRate;
     spb = blockSize;
     ringBuffer.reset(sr, spb);
 }
 
-void VibratoDetector::setNumSecondsToHold(float numSeconds)
+void VibratoDetector::setNumSecondsToHold(const float numSeconds)
 {
     ringBuffer.setSecondsToHold(numSeconds);
 }
 
-void VibratoDetector::setMinMaxRate(float newMinRate, float newMaxRate)
+void VibratoDetector::setMinMaxRate(const float newMinRate, const float newMaxRate)
 {
     minRate = newMinRate;
     maxRate = newMaxRate;
 }
 
-void VibratoDetector::setFrequencyAttack(float newValue)
+void VibratoDetector::setFrequencyAttack(const float newValue)
 {
     ringBuffer.setFrequencyAttack(newValue);
 }
 
-void VibratoDetector::setFrequencyRelease(float newValue)
+void VibratoDetector::setFrequencyRelease(const float newValue)
 {
     ringBuffer.setFrequencyRelease(newValue);
 }
 
-void VibratoDetector::setRmsAttack(float newValue)
+void VibratoDetector::setRmsAttack(const float newValue)
 {
     ringBuffer.setRmsAttack(newValue);
 }
 
-void VibratoDetector::setRmsRelease(float newValue)
+void VibratoDetector::setRmsRelease(const float newValue)
 {
     ringBuffer.setRmsRelease(newValue);
 }

@@ -2,7 +2,7 @@
 
 namespace Utility
 {
-    MidiRingBuffer::MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize)
+    MidiRingBuffer::MidiRingBuffer(const float numSecondsToHold, const double sampleRate, const int blockSize)
         : data((int)(sampleRate * numSecondsToHold), 0),
           crossingPositions(0),
           spb(blockSize),
@@ -11,7 +11,7 @@ namespace Utility
         reset(sampleRate, blockSize);
     }
 
-    void MidiRingBuffer::push(juce::MidiBuffer& buffer)
+    void MidiRingBuffer::push(const juce::MidiBuffer& buffer)
     {
         amplitude.skip(spb);
         frequency.skip(spb);
@@ -20,11 +20,11 @@ namespace Utility
 
         for (auto metadata : buffer)
         {
-            auto time = metadata.samplePosition;
+            const auto time = metadata.samplePosition;
 
             //First we write whatever the previous value was, up until the value should actually change
             write(time - currentSamplePos);
-            auto currentValue = value;
+            const auto currentValue = value;
             //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
             value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
 
@@ -43,9 +43,9 @@ namespace Utility
         auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
         amplitude.setTargetValue(rms);
 
-        float numSecondsInBuffer = (float)data.size() / (float)sr;
-        float numCycles = (float)crossingPositions.size() / 2;
-        float freq = numCycles / numSecondsInBuffer;
+        const float numSecondsInBuffer = (float)data.size() / (float)sr;
+        const float numCycles = (float)crossingPositions.size() / 2;
+        const float freq = numCycles / numSecondsInBuffer;
         frequency.setTargetValue(freq);
     }
 
@@ -56,7 +56,7 @@ namespace Utility
 
     int MidiRingBuffer::getFrequency(float minFrequency, float maxFrequency)
     {
-        auto clamped = std::clamp(getRawFrequency(), minFrequency, maxFrequency);
+        const auto clamped = std::clamp(getRawFrequency(), minFrequency, maxFrequency);
         return static_cast<int>(juce::jmap(clamped, minFrequency, maxFrequency, 0.f, 127.f));
     }
 
@@ -68,8 +68,8 @@ namespace Utility
     int MidiRingBuffer::getRms()
     {
         //A sine wave should have an RMS of 0.707 times the max value (which in our case is 64 * 0.707);
-        auto clamped = std::clamp(getRawRms(), 0.f, 64.f * 0.707f);
-        auto mapped = juce::jmap(clamped, 0.f, 64.f * 0.707f, 0.f, 127.f);
+        const auto clamped = std::clamp(getRawRms(), 0.f, 64.f * 0.707f);
+        const auto mapped = juce::jmap(clamped, 0.f, 64.f * 0.707f, 0.f, 127.f);
         return static_cast<int>(std::clamp(mapped, 0.f, 127.f));
     }
 
@@ -116,14 +116,14 @@ namespace Utility
         juce::ignoreUnused(newValue);
     }
 
-    void MidiRingBuffer::write(int numSamplesToWrite)
+    void MidiRingBuffer::write(const int numSamplesToWrite)
     {
         if (numSamplesToWrite == 0) return;
         for (int i = 0; i < numSamplesToWrite; i++)
         {
-            auto oldestValue = data[writeHead];
             {
                 //Calculate RMS
+                const auto oldestValue = data[writeHead];
                 rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
                 rmsSum += std::powf(static_cast<float>(value), 2.0);
             }
@@ -144,7 +144,7 @@ namespace Utility
         //Wrap around
         else
         {
-            auto delta = (int)data.size() - writeHead;
+            const auto delta = (int)data.size() - writeHead;
             writeHead = 0 + increment - delta;
         }
     }
