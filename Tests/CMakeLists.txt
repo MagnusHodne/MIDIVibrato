@@ -24,6 +24,7 @@ set(UnitTests
 set(TestedFiles
         ../Source/VibratoDetector.h
         ../Source/Utility/MidiSineGenerator.h
+        ../Source/Utility/MidiSineGenerator.cpp
         ../Source/Utility/MidiRingBuffer.h
         ../Source/Utility/MidiRingBuffer.cpp
 )
