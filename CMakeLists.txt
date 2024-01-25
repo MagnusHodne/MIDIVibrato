@@ -47,6 +47,7 @@ set(SourceFiles
     Source/Component/MidiMeter.h
     Source/Component/MidiMeter.cpp
     Source/VibratoDetector.h
+    Source/VibratoDetector.cpp
     Source/Utility/MidiSineGenerator.h
     Source/PluginEditor.h
     Source/PluginEditor.cpp

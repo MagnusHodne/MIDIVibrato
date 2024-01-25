@@ -1,7 +1,6 @@
 #pragma once
 
 #include "juce_audio_basics/juce_audio_basics.h"
-#include "juce_core/juce_core.h"
 #include "Detector.h"
 #include "Utility/MidiRingBuffer.h"
 
@@ -9,96 +8,40 @@ class VibratoDetector : public Detector {
 public:
     ///
     /// \param initialBufferSize the number of buffers that is stored internally for calculating averages on
-    explicit VibratoDetector(int initialBufferSize)
-            : sr(48000), spb(256), ringBuffer((float) initialBufferSize, sr, spb) {
-    }
+    explicit VibratoDetector(int initialBufferSize);
 
     ~VibratoDetector() override = default;
 
-    void processMidi(juce::MidiBuffer &midiMessages, int numSamples) override {
-        juce::ignoreUnused(numSamples);
-        juce::MidiBuffer passthrough;
-        juce::MidiBuffer vibratoData;
+    void processMidi(juce::MidiBuffer &midiMessages, int numSamples) override;
 
-        for (const auto metadata: midiMessages) {
-            auto message = metadata.getMessage();
-            const auto time = metadata.samplePosition;
-
-            if (message.isControllerOfType(inputController)) {
-                vibratoData.addEvent(message, time);
-            } else {
-                passthrough.addEvent(message, time);
-            }
-        }
-
-        ringBuffer.push(vibratoData);
-
-        passthrough.addEvent(
-                juce::MidiMessage::controllerEvent(1, ampController, getRms()),
-                1);
-
-        passthrough.addEvent(
-                juce::MidiMessage::controllerEvent(1, rateController, getFrequency()),
-                2);
-
-        midiMessages.swapWith(passthrough);
-    }
-
-    [[nodiscard]] int getRms() override {
-        return ringBuffer.getRms();
-    }
+    [[nodiscard]] int getRms() override;
 
     //Should return rate mapped to the correct values...
-    [[nodiscard]] int getFrequency() override {
-        return ringBuffer.getFrequency(minRate, maxRate);
-    }
+    [[nodiscard]] int getFrequency() override;
 
-    void setInputController(int newCC) override {
-        inputController = clampCCs(newCC);
-    }
+    void setInputController(int newCC) override;
 
-    void setRmsController(int newCC) override {
-        ampController = clampCCs(newCC);
-    }
+    void setRmsController(int newCC) override;
 
-    void setFrequencyController(int newCC) override {
-        rateController = clampCCs(newCC);
-    }
+    void setFrequencyController(int newCC) override;
 
-    static int clampCCs(int newCC) { return std::clamp(newCC, 1, 127); }
+    static int clampCCs(int newCC);
 
-    void resetValues(double sampleRate, int blockSize) override {
-        sr = sampleRate;
-        spb = blockSize;
-        ringBuffer.reset(sr, spb);
-    }
+    void resetValues(double sampleRate, int blockSize) override;
 
-    void setNumSecondsToHold(float numSeconds) override {
-        ringBuffer.setSecondsToHold(numSeconds);
-    }
+    void setNumSecondsToHold(float numSeconds) override;
 
     /// Sets the new min and max rates for the vibrato. These values should correspond to the min/max
     /// of whatever instrument you are playing, so that the output rateCC correctly maps from 0-127
-    void setMinMaxRate(float newMinRate, float newMaxRate) override {
-        minRate = newMinRate;
-        maxRate = newMaxRate;
-    }
+    void setMinMaxRate(float newMinRate, float newMaxRate) override;
 
-    void setFrequencyAttack(float newValue) override {
-        ringBuffer.setFrequencyAttack(newValue);
-    }
+    void setFrequencyAttack(float newValue) override;
 
-    void setFrequencyRelease(float newValue) override {
-        ringBuffer.setFrequencyRelease(newValue);
-    }
+    void setFrequencyRelease(float newValue) override;
 
-    void setRmsAttack(float newValue) override {
-        ringBuffer.setRmsAttack(newValue);
-    }
+    void setRmsAttack(float newValue) override;
 
-    void setRmsRelease(float newValue) override {
-        ringBuffer.setRmsRelease(newValue);
-    }
+    void setRmsRelease(float newValue) override;
 
 private:
 
