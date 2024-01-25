@@ -24,7 +24,9 @@ set(UnitTests
 set(TestedFiles
         ../Source/VibratoDetector.h
         ../Source/Utility/MidiSineGenerator.h
-        ../Source/Utility/MidiRingBuffer.h)
+        ../Source/Utility/MidiRingBuffer.h
+        ../Source/Utility/MidiRingBuffer.cpp
+)
 
 juce_add_console_app(MyPluginTests
         PRODUCT_NAME "MyPlugin Unit Tests")

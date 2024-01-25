@@ -7,133 +7,37 @@
 namespace Utility {
     class MidiRingBuffer {
     public:
-        explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize)
-                : data((int)(sampleRate * numSecondsToHold), 0),
-                  crossingPositions(0),
-                  spb(blockSize),
-                  sr(sampleRate) {
-            reset(sampleRate, blockSize);
-        }
+        explicit MidiRingBuffer(float numSecondsToHold, double sampleRate, int blockSize);
 
-        void push(juce::MidiBuffer &buffer) {
-            amplitude.skip(spb);
-            frequency.skip(spb);
+        void push(juce::MidiBuffer &buffer);
 
-            int currentSamplePos = 0;
+        float getRawFrequency();
 
-            for (auto metadata: buffer) {
-                auto time = metadata.samplePosition;
+        int getFrequency(float minFrequency, float maxFrequency);
 
-                //First we write whatever the previous value was, up until the value should actually change
-                write(time - currentSamplePos);
-                auto currentValue = value;
-                //Map our values so that we deal with 0 as our center value (lets us process MIDI similarly to how we process audio)
-                value = juce::jmap(metadata.getMessage().getControllerValue(), 0, 127, -63, 64);
+        float getRawRms();
 
-                if (currentValue >= 0 && value < 0 || currentValue <= 0 && value > 0) {
-                    crossingPositions.emplace_back(writeHead);
-                }
-                currentSamplePos = time;
-            }
-            //Make sure we write the remaining values in the buffer
-            if (currentSamplePos < spb) {
-                write(spb - currentSamplePos);
-            }
+        int getRms();
 
-            auto rms = std::sqrt(rmsSum / static_cast<float>(data.size()));
-            amplitude.setTargetValue(rms);
+        void setSmoothingRampLength(double newLength);
 
-            float numSecondsInBuffer = (float) data.size() / (float) sr;
-            float numCycles = (float) crossingPositions.size() / 2;
-            float freq = numCycles/numSecondsInBuffer;
-            frequency.setTargetValue(freq);
-        }
+        void reset(double sampleRate, int blockSize);
 
-        float getRawFrequency() {
-            return frequency.getCurrentValue();
-        }
+        void setSecondsToHold(float newTime);
 
-        int getFrequency(float minFrequency, float maxFrequency) {
-            auto clamped = std::clamp(getRawFrequency(), minFrequency, maxFrequency);
-            return static_cast<int>(juce::jmap(clamped, minFrequency, maxFrequency, 0.f, 127.f));
-        }
+        void setFrequencyAttack(float newValue);
 
-        float getRawRms() {
-            return amplitude.getCurrentValue();
-        }
+        void setFrequencyRelease(float newValue);
 
-        int getRms() {
-            //A sine wave should have an RMS of 0.707 times the max value (which in our case is 64 * 0.707);
-            auto clamped = std::clamp(getRawRms(), 0.f, 64.f * 0.707f);
-            auto mapped = juce::jmap(clamped, 0.f, 64.f * 0.707f, 0.f, 127.f);
-            return static_cast<int>(std::clamp(mapped, 0.f, 127.f));
-        }
+        void setRmsAttack(float newValue);
 
-        void setSmoothingRampLength(double newLength) {
-            amplitude.reset(sr, newLength);
-            frequency.reset(sr, newLength);
-        }
-
-        void reset(double sampleRate, int blockSize) {
-            sr = sampleRate;
-            spb = blockSize;
-            amplitude.reset(sampleRate, ampAttack);
-            amplitude.setCurrentAndTargetValue(0.f);
-            frequency.reset(sampleRate, freqAttack);
-            frequency.setCurrentAndTargetValue(0.f);
-        }
-
-        void setSecondsToHold(float newTime){
-            data.assign((int) (sr * newTime), 0);
-        }
-
-        void setFrequencyAttack(float newValue) {
-            freqAttack = newValue;
-            frequency.reset(sr, newValue);
-        }
-
-        void setFrequencyRelease(float newValue) {
-            juce::ignoreUnused(newValue);
-        }
-
-        void setRmsAttack(float newValue) {
-            ampAttack = newValue;
-            amplitude.reset(sr, newValue);
-        }
-
-        void setRmsRelease(float newValue) {
-            juce::ignoreUnused(newValue);
-        }
+        void setRmsRelease(float newValue);
 
     private:
-        void write(int numSamplesToWrite) {
-            if (numSamplesToWrite == 0) return;
-            for (int i = 0; i < numSamplesToWrite; i++) {
-                auto oldestValue = data[writeHead];
-                {
-                    //Calculate RMS
-                    rmsSum -= std::powf(static_cast<float>(oldestValue), 2.0);
-                    rmsSum += std::powf(static_cast<float>(value), 2.0);
-                }
-
-                data[writeHead] = value;
-                moveWritePos(1);
-                if(!crossingPositions.empty() && crossingPositions.front() == writeHead){
-                    crossingPositions.pop_front();
-                }
-            }
-        }
+        void write(int numSamplesToWrite);
 
         //Method for arbitrarily moving the writeHead any number of positions
-        void moveWritePos(int increment) {
-            //If we aren't out of bounds when incrementing by the desired amount, simply increment
-            if (writeHead + increment < data.size()) writeHead += increment;
-                //Wrap around
-            else {
-                auto delta = (int) data.size() - writeHead;
-                writeHead = 0 + increment - delta;
-            }
-        }
+        void moveWritePos(int increment);
 
         std::vector<int> data; //Holds MIDI msg value
         std::deque<int> crossingPositions; //TODO - implement a lock-free FIFO instead
@@ -144,7 +48,7 @@ namespace Utility {
 
         float rmsSum = 0.f;
 
-        double ampAttack, freqAttack = 0.5;
+        double ampAttack{}, freqAttack = 0.5;
         juce::LinearSmoothedValue<float> amplitude, frequency;
     };
 }
