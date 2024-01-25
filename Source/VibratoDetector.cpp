@@ -2,7 +2,7 @@
 #include "juce_core/juce_core.h"
 
 VibratoDetector::VibratoDetector(int initialBufferSize)
-    : sr(48000), spb(256), ringBuffer((float)initialBufferSize, sr, spb)
+    : ringBuffer((float)initialBufferSize, sr, spb)
 {
 }
 
